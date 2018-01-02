@@ -6,8 +6,9 @@ import java.io.Serializable;
 import java.util.List;
 
 public class QuizesMessage extends SocketMessage implements Serializable {
-    private static final long serialVersionUID = 0;//TOBEREPLACED
 
+
+    private static final long serialVersionUID = 3590476803891320170L;
     private List<Long> quizes;
     //private Long quizId;
 
