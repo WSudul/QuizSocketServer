@@ -10,7 +10,7 @@ import java.util.List;
 public class QuizMessage extends SocketMessage implements Serializable {
 
 
-    private static final long serialVersionUID = 8100311873209486609L;
+    private static final long serialVersionUID = -7288386688322415847L;
     private List<Question> questions;
     private Long quizId;
 

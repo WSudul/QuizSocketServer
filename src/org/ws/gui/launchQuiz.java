@@ -5,12 +5,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Quiz extends Container {
+public class launchQuiz extends Container {
     protected JPanel panel1, panel2;
     private JTextField niuField;
     private JButton loginButton;
     private JLabel niuLabel;
     private String niu;
+    private JFrame frame,framewelcome;
+
 
     public void setNiu(String niu) {
         this.niu = niu;
@@ -20,7 +22,16 @@ public class Quiz extends Container {
         return niu;
     }
 
-    Quiz() {
+    launchQuiz() {
+        //this.framewelcome=frame;
+        frame = new JFrame("Quiz application");
+        //launchQuiz start=new launchQuiz();
+        frame.setContentPane(panel1);
+        frame.getContentPane().setPreferredSize(new Dimension(1300, 700));
+        frame.pack();
+        Application.centreWindow(frame);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
         /*add (panel1);
         add(niuField);
         add(loginButton);*/
@@ -48,6 +59,7 @@ public class Quiz extends Container {
     }
 
         private void openWelcome(){
+            quizWindow qui=new quizWindow();
 
             //frame.setContentPane(start.panel2);
             //panel2.add(new Label("hi"));
