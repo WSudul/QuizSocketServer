@@ -1,4 +1,4 @@
-package org.ws.server.communication;
+package org.ws.communication;
 
 
 import java.io.Serializable;

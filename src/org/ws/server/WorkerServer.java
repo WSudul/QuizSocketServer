@@ -15,7 +15,7 @@ import java.util.concurrent.*;
 import java.util.logging.Logger;
 
 
-public class WorkerServer implements Runnable {
+public class  WorkerServer implements Runnable {
 
 
     private final static Logger logger = Logger.getLogger(WorkerServer.class.getName());

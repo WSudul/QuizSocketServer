@@ -1,7 +1,7 @@
-package org.ws.server.communication;
+package org.ws.communication;
 
 
-import org.ws.server.communication.job.Question;
+import org.ws.communication.job.Question;
 
 import java.io.Serializable;
 import java.util.List;

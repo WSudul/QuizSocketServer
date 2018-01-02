@@ -1,4 +1,4 @@
-package org.ws.server.communication.job;
+package org.ws.communication.job;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -11,7 +11,7 @@ public class Question implements Serializable  {
     private QuestionType questionType;
     private Long id;
     private String question;
-    private Set<String> possibleAnswers;
+    private Set<String> possibleAnswers; //#TODO replace with <id,String
 
 
     public Question(){

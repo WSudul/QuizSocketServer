@@ -1,11 +1,10 @@
 package org.ws;
 
-import org.ws.server.WorkerServer;
 import org.ws.server.config.WorkerConfiguration;
-import org.ws.server.config.WorkerConfigurationBuilder;
 import org.ws.server.config.WorkerServerConfiguration;
+import org.ws.server.WorkerServer;
+import org.ws.server.config.WorkerConfigurationBuilder;
 
-import java.awt.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;

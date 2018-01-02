@@ -1,9 +1,6 @@
-package org.ws.server.communication;
-
-import org.ws.server.communication.SocketMessage;
+package org.ws.communication;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class RequestQuizMessage extends SocketMessage implements Serializable {
 

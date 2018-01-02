@@ -1,7 +1,5 @@
 package org.ws.server.config;
 
-import org.ws.server.config.WorkerConfiguration;
-
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package org.ws.server.communication.job;
+package org.ws.communication.job;
 
 public enum QuestionType {
 

@@ -1,8 +1,7 @@
-package org.ws.server.communication;
+package org.ws.communication;
 
 
-import org.ws.server.communication.job.Answer;
-import org.ws.server.communication.job.Question;
+import org.ws.communication.job.Answer;
 
 import java.io.Serializable;
 import java.util.List;
@@ -25,4 +24,20 @@ public class QuizAnswersMessage extends SocketMessage implements Serializable {
 
     }
 
+
+    public List<Answer> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Answer> questions) {
+        this.questions = questions;
+    }
+
+    public Long getQuizId() {
+        return quizId;
+    }
+
+    public void setQuizId(Long quizId) {
+        this.quizId = quizId;
+    }
 }
