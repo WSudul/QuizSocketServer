@@ -41,8 +41,8 @@ public class Worker implements Runnable {
         //do stuff
 
         try {
-            input = new ObjectInputStream(client.getInputStream());
             output = new ObjectOutputStream(client.getOutputStream());
+            input = new ObjectInputStream(client.getInputStream());
         } catch (IOException e) {
             logger.warning(e.getMessage());
             performClose();
@@ -51,13 +51,14 @@ public class Worker implements Runnable {
         try {
             //#TODO receive request;
             while(shouldRead){
-
+                logger.info(Thread.currentThread().toString());
                 Object message = input.readObject();
                 if (!isValidMessage(message)) {
                     output.writeObject(new RejectionMessage(workerName, null, "Unrecognized message received!"));
                 } else {
                     //#TODO handle messages and responses
-
+                    SocketMessage name= (SocketMessage) message;
+                    clientName=((SocketMessage) message).getAuthor();
 
                     QuizMessage quizMessage=new QuizMessage(workerName);
                     quizMessage.setQuizId(1l);

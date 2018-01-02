@@ -26,7 +26,7 @@ public class Main {
             logger.severe("Configuration setup failed. Could not resolve InetAddress "
                     + e.getMessage());
         }
-        serverConfiguration.setPort(8080);
+        serverConfiguration.setPort(8081);
 
         List<WorkerConfiguration> workerConfigurations;
         workerConfigurations = new ArrayList<WorkerConfiguration>();

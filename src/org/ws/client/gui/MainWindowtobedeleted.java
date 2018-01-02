@@ -1,4 +1,4 @@
-package org.ws.gui;
+package org.ws.client.gui;
 
 import javax.swing.*;
 import java.awt.*;

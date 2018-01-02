@@ -1,4 +1,4 @@
-package org.ws.gui;
+package org.ws.client.gui;
 
 public class Main {
     public static void main(String[] args) {
