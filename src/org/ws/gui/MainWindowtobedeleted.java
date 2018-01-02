@@ -16,7 +16,7 @@ public class MainWindowtobedeleted {
     private JLabel niuLabel;
     private JTextField niuField;
     private JButton loginButton;
-    public String niu;
+    private String niu;
     private CardLayout cardLayout = new CardLayout();
 
    /* CardLayout card = (CardLayout) panel1.getLayout();
@@ -56,10 +56,10 @@ public class MainWindowtobedeleted {
 
 
 /*public static void main(String[] args) {
-        JFrame frame = new JFrame("Quiz application");
+        JFrame frame = new JFrame("launchQuiz application");
         CardLayout card = (CardLayout)panel1.getLayout();
         card.show(panel1, "panelOne");
-        //Quiz start=new Quiz();
+        //launchQuiz start=new launchQuiz();
         //frame.setContentPane(start.panel1);
         frame.getContentPane().setPreferredSize(new Dimension(1300, 700));
         frame.pack();
@@ -79,7 +79,7 @@ public class MainWindowtobedeleted {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                JFrame frame = new JFrame("Quiz application");
+                JFrame frame = new JFrame("launchQuiz application");
                 MainWindowtobedeleted frame2 = new MainWindowtobedeleted();
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.getContentPane().setPreferredSize(new Dimension(1300, 700));
