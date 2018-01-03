@@ -54,7 +54,8 @@ public abstract class DaoBase {
     }
 
     protected boolean selectSchema(String usedSchema, Statement st) {
-        return executeUpdate(st, "USE nowaBaza;") == 0;
+        System.out.println("selectSchema");
+        return executeUpdate(st, "USE "+usedSchema+";") == 0;
     }
 
 

@@ -32,9 +32,6 @@ public class Main {
         workerConfigurations = new ArrayList<WorkerConfiguration>();
 
         workerConfigurations.add(new WorkerConfigurationBuilder().name("Worker-1").buildWorkerConfiguration());
-        workerConfigurations.add(new WorkerConfigurationBuilder().name("Worker-2").buildWorkerConfiguration());
-        workerConfigurations.add(new WorkerConfigurationBuilder().name("Worker-3").buildWorkerConfiguration());
-        workerConfigurations.add(new WorkerConfigurationBuilder().name("Worker-4").buildWorkerConfiguration());
 
         serverConfiguration.setWorkerConfigurations(workerConfigurations);
 

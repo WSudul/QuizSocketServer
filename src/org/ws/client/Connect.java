@@ -2,13 +2,10 @@ package org.ws.client;
 
 
 
-import org.ws.communication.QuizResultsMessage;
-import org.ws.communication.RejectionMessage;
-import org.ws.communication.RequestQuizesMessage;
+import org.ws.communication.RequestQuizListMessage;
 
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
 
 
 public class Connect {
@@ -39,7 +36,7 @@ public class Connect {
                     return;
                 }
                 System.out.println("I'm here");
-                output.writeObject(new RequestQuizesMessage(null, hostIP));
+                output.writeObject(new RequestQuizListMessage(null, hostIP));
                 System.out.println("request sent");
             } catch (Exception e) {
                 System.err.println(e);

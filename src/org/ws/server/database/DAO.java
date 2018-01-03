@@ -7,10 +7,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class DAO extends DaoBase implements IQuizDAO{
@@ -24,9 +21,9 @@ public class DAO extends DaoBase implements IQuizDAO{
 
         if (processConfiguration(configuration))
             //#TODO
-            logger.info("Loaded configation for DaoCreator");
+            logger.info("Loaded configation for DAO");
         else {
-            logger.warning("DaoCreator was unable to load config - using default settings");
+            logger.warning("DAO was unable to load config - using default settings");
             loadDefaultConfig();
         }
 
@@ -34,7 +31,7 @@ public class DAO extends DaoBase implements IQuizDAO{
 
     @Override
     public boolean initialize() {
-
+        System.out.println("DAO initialize()");
         dbConnection = ConnectToDatabase(configuration.getUserName(), configuration.getPassword());
 
         if (dbConnection == null) {
@@ -44,6 +41,8 @@ public class DAO extends DaoBase implements IQuizDAO{
             daoCreator = new DaoCreator();
             daoCreator.setDbConnection(dbConnection);
             daoCreator.setUsedSchema(configuration.getUsedSchema());
+            daoCreator.setSqlCreateStatements(configuration.getCreateStatements());
+            System.out.println("daoCreator.initialize()");
             if (daoCreator.initialize())
             logger.info("daoCreator initialized");
             else
@@ -62,9 +61,6 @@ public class DAO extends DaoBase implements IQuizDAO{
     }
 
 
-
-
-
     public boolean loadConfiguartion(DaoConfiguration configuration) {
         return processConfiguration(configuration);
     }
@@ -79,11 +75,31 @@ public class DAO extends DaoBase implements IQuizDAO{
             configuration=new DaoConfiguration();
         configuration.setDriverName( "com.mysql.jdbc.Driver");
         configuration.setDatabaseSpecificAddress( "jdbc:mysql://");
-        configuration.setDatabaseServerAddress ( "localhost");
-        configuration.setPort ( 3306);
-        configuration.setUserName ("root");
-        configuration.setPassword ( "root");
-        configuration.setUsedSchema ( "quiz");
+        configuration.setDatabaseServerAddress ( "127.0.0.1");
+        configuration.setPort (3306);
+        configuration.setUserName ("quiz_account");
+        configuration.setPassword ( "quiz_account");
+        configuration.setUsedSchema ( "quiztest123");
+         List<String> sqlCreationList=new ArrayList<>();
+
+        sqlCreationList.add("CREATE TABLE `answers` (`question_id` int(11) NOT NULL,`id` int(11) NOT NULL,`text` varchar(512) NOT NULL);");
+        sqlCreationList.add("CREATE TABLE `correct_answers` (`question_id` int(11) NOT NULL,`answer_id` int(11) NOT NULL);");
+        sqlCreationList.add("CREATE TABLE `question` (`quiz_id` int(11) NOT NULL,`id` int(11) NOT NULL,`text` varchar(512) NOT NULL,`value` int(11) NOT NULL DEFAULT '1');");
+        sqlCreationList.add("CREATE TABLE `quiz` (`id` int(11) NOT NULL,`active` tinyint(1) NOT NULL DEFAULT '1');");
+        sqlCreationList.add("CREATE TABLE `results` (`id` int(11) NOT NULL,`quiz_id` int(11) NOT NULL,`NIU` varchar(16) NOT NULL,`score` int(11) NOT NULL,  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP);");
+        sqlCreationList.add("ALTER TABLE `answers` ADD PRIMARY KEY (`question_id`,`id`);");
+        sqlCreationList.add("ALTER TABLE `correct_answers` ADD UNIQUE KEY `question_id_2` (`question_id`), ADD KEY `question_id` (`question_id`,`answer_id`);");
+        sqlCreationList.add("ALTER TABLE `question` ADD PRIMARY KEY (`quiz_id`,`id`);");
+        sqlCreationList.add("ALTER TABLE `quiz` ADD PRIMARY KEY (`id`);");
+        sqlCreationList.add("ALTER TABLE `results` ADD KEY `quiz_id` (`quiz_id`);");
+        sqlCreationList.add("ALTER TABLE `answers` ADD CONSTRAINT `answers_ibfk_1` FOREIGN KEY (`question_id`) REFERENCES `question` (`quiz_id`) ON DELETE CASCADE ON UPDATE CASCADE;");
+        sqlCreationList.add("ALTER TABLE `correct_answers` ADD CONSTRAINT `correct_answers_ibfk_1` FOREIGN KEY (`question_id`,`answer_id`) REFERENCES `answers` (`question_id`, `id`);");
+        sqlCreationList.add("ALTER TABLE `question` ADD CONSTRAINT `question_ibfk_1` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;");
+        sqlCreationList.add("ALTER TABLE `results` ADD CONSTRAINT `results_ibfk_1` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;");
+
+        configuration.setCreateStatements(sqlCreationList);
+
+
     }
 
     private boolean checkDriver(String driver) {
@@ -110,7 +126,8 @@ public class DAO extends DaoBase implements IQuizDAO{
             connection = DriverManager.getConnection(url,
                     connectionProperties);
         } catch (SQLException e) {
-            logger.severe("Could not connect to db " + e.getMessage() + " Error Code: " + e.getErrorCode());
+            logger.severe("Could not connect to db : " + e.getMessage() + " Error Code: " + e.getErrorCode());
+            return null;
         }
         logger.info("Connection to db estabilished");
         return connection;

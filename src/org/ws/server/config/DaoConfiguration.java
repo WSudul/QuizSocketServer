@@ -1,5 +1,7 @@
 package org.ws.server.config;
 
+import java.util.List;
+
 public class DaoConfiguration {
 
     private String driverName;
@@ -9,7 +11,7 @@ public class DaoConfiguration {
     private String userName;
     private String password;
     private String usedSchema;
-
+    private List<String> createStatements;
     public DaoConfiguration(){
 
     }
@@ -68,5 +70,13 @@ public class DaoConfiguration {
 
     public void setUsedSchema(String usedSchema) {
         this.usedSchema = usedSchema;
+    }
+
+    public List<String> getCreateStatements() {
+        return createStatements;
+    }
+
+    public void setCreateStatements(List<String> createStatements) {
+        this.createStatements = createStatements;
     }
 }

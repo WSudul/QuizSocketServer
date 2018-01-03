@@ -1,6 +1,6 @@
 package org.ws.client.gui;
 
-import org.ws.communication.QuizesMessage;
+import org.ws.communication.QuizListMessage;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -30,7 +30,7 @@ public class QuizesComboBox {
             }
         });
 
-        QuizesMessage qu=new QuizesMessage();
+        QuizListMessage qu=new QuizListMessage();
         List<String> quizes= qu.getQuizes();
         SortedComboBoxModel model = new SortedComboBoxModel(quizes);
         comboBox = new JComboBox(model);

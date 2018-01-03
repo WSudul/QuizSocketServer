@@ -15,6 +15,7 @@ public class DaoCreator extends DaoBase{
 
 
     public DaoCreator(){
+        System.out.println("DaoCreator() ctor");
         sqlCreateStatements=new ArrayList<>();
     }
 
@@ -28,25 +29,27 @@ public class DaoCreator extends DaoBase{
 
     @Override
     public boolean initialize() {
-        String shchemaName=getUsedSchema();
+        String schemaName=getUsedSchema();
 
-        if (getDbConnection() == null || shchemaName==null) {
+        if (getDbConnection() == null || schemaName==null) {
             logger.warning("initialization was no completed!");
             return false;
         }
         boolean isSchemaValid = true;
         Statement st = createStatement(getDbConnection());
-        if (!selectSchema(shchemaName, st)) {
-            if (createSchema(shchemaName, st)) {
-                logger.info("Schema " + shchemaName + " has been created");
-                if (createTables(sqlCreateStatements, st))
-                    logger.info("Tables created");
-                else {
-                    logger.warning("Tables were not created!");
-                    isSchemaValid = false;
-                }
+        if (!selectSchema(schemaName, st)) {
+            if (createSchema(schemaName, st)) {
+                logger.info("Schema " + schemaName + " has been created");
+
             } else {
                 logger.info("Unable to create schema");
+                isSchemaValid = false;
+            }
+            //#TODO SQL agnostic check for table existence
+            if (createTables(sqlCreateStatements, st))
+                logger.info("Tables created");
+            else {
+                logger.warning("Tables were not created!");
                 isSchemaValid = false;
             }
 
@@ -57,7 +60,8 @@ public class DaoCreator extends DaoBase{
                 logger.severe("Schema validation is not completed!");
                 return false;
             }
-        }
+        }else
+            logger.info("Schema is selected");
 
 
         return true;
@@ -69,14 +73,36 @@ public class DaoCreator extends DaoBase{
     }
 
     private boolean createTables(List<String> sqlStatements, Statement st) {
-        for (String sql : sqlStatements) {
-            if (!(0 == executeUpdate(st, sql)))
-                return false;
+        try {
+
+            selectSchema(this.getUsedSchema(),st);
+            this.getDbConnection().setAutoCommit(false);
+
+
+            for (String sql : sqlStatements)
+            {
+                System.out.println("executing: "+sql);
+                st.executeUpdate(sql);
+            }
+
+            this.getDbConnection().commit();
+            this.getDbConnection().setAutoCommit(true);
+            System.out.println("commiting");
+
+        } catch (SQLException e) {
+            logger.severe("Could not create tables : \nState: "+e.getSQLState()+" Message: "+e.getMessage());
+            return false;
         }
+
+
         return true;
     }
 
+    public List<String> getSqlCreateStatements() {
+        return sqlCreateStatements;
+    }
 
-
-
+    public void setSqlCreateStatements(List<String> sqlCreateStatements) {
+        this.sqlCreateStatements = sqlCreateStatements;
+    }
 }

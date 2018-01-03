@@ -1,10 +1,7 @@
 package org.ws.server.worker;
 
 
-import org.ws.communication.QuizMessage;
-import org.ws.communication.RejectionMessage;
-import org.ws.communication.RequestQuizMessage;
-import org.ws.communication.SocketMessage;
+import org.ws.communication.*;
 import org.ws.communication.job.Question;
 
 
@@ -52,21 +49,42 @@ public class Worker implements Runnable {
             //#TODO receive request;
             while(shouldRead){
                 logger.info(Thread.currentThread().toString());
-                Object message = input.readObject();
-                if (!isValidMessage(message)) {
+                Object receivedMessage = input.readObject();
+                if (!isValidMessage(receivedMessage)) {
                     output.writeObject(new RejectionMessage(workerName, null, "Unrecognized message received!"));
                 } else {
                     //#TODO handle messages and responses
-                    SocketMessage name= (SocketMessage) message;
-                    clientName=((SocketMessage) message).getAuthor();
+                    SocketMessage name= (SocketMessage) receivedMessage;
+                    clientName=((SocketMessage) receivedMessage).getAuthor();
 
-                    QuizMessage quizMessage=new QuizMessage(workerName);
-                    quizMessage.setQuizId(1l);
-                    quizMessage.setQuestions(new ArrayList<Question>());
-                    output.writeObject(quizMessage);
+                    if(!addClientToList(clientName)){
+                        output.writeObject(new EndCommunicationMessage(workerName));
+                    }
+
+                    SocketMessage message=null;
+
+                    if(receivedMessage instanceof RequestQuizListMessage){
+                        QuizListMessage payload = new QuizListMessage(workerName);
+                        payload.setQuizes(new ArrayList<>());
+                        message=payload;
+
+                    }else if(receivedMessage instanceof RequestQuizMessage){
+
+                    }else if(receivedMessage instanceof QuizAnswersMessage){
+
+                    }else if(receivedMessage instanceof EndCommunicationMessage){
+                        performClose();
+                    }else
+                    {
+                        output.writeObject(new RejectionMessage(workerName, null, "Unhandled message type received"));
+                    }
 
 
-                    input.readObject();
+
+
+
+
+
 
 
                 }
@@ -82,6 +100,13 @@ public class Worker implements Runnable {
             performClose();
             return;
         }
+    }
+
+    //#TODO access shared list between all threads
+    private boolean addClientToList(String clientName) {
+
+
+        return true;
     }
 
     private void performClose() {

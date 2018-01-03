@@ -3,18 +3,18 @@ package org.ws.communication;
 import java.io.Serializable;
 import java.util.List;
 
-public class QuizesMessage extends SocketMessage implements Serializable {
+public class QuizListMessage extends SocketMessage implements Serializable {
 
     private static final long serialVersionUID = 3590476803891320170L;
     private List<String> quizes;
     //private Long quizId;
 
-    public QuizesMessage(String author) {
+    public QuizListMessage(String author) {
         super(author);
     }
 
     @Deprecated
-    public QuizesMessage() {
+    public QuizListMessage() {
 
     }
 

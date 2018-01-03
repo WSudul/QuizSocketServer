@@ -2,6 +2,8 @@ package org.ws.server;
 
 import org.ws.server.config.WorkerConfiguration;
 import org.ws.server.config.WorkerServerConfiguration;
+import org.ws.server.database.DAO;
+import org.ws.server.database.DaoCreator;
 import org.ws.server.worker.Worker;
 
 
@@ -23,10 +25,11 @@ public class  WorkerServer implements Runnable {
     private List<WorkerConfiguration> workerConfigurations = new ArrayList<>
             (Arrays.asList(new WorkerConfiguration("Worker", TimeUnit.SECONDS, 10, 3)));
     private String name = "Worker-Server";
-    private int workerPoolSize = 1;
+    private int workerPoolSize = 10;
     private int serverPoolSize = 5;
     private InetAddress inetAddress;
     private Integer port = 8080;
+    private DAO dao=new DAO(null);
 
     public WorkerServer(WorkerServerConfiguration configuration) {
 
@@ -57,15 +60,16 @@ public class  WorkerServer implements Runnable {
     @Override
     public void run() {
         //call looping method
-
         logger.info("Server " + this.name + " thread is started: " + Thread.currentThread().getName());
 
+        if(!dao.initialize()) {
+            logger.severe("Could not  valid ensure database access");
+            //return;
+        }
         handleRequests();
 
     }
 
-
-    //old implementation for socket - should be moved to handle http requests
     private void handleRequests() {
         ServerSocket serverSocket = null;
         try {
@@ -78,64 +82,21 @@ public class  WorkerServer implements Runnable {
         boolean shouldLive=true;
 
         executors =  Executors.newFixedThreadPool(workerPoolSize);
-        Socket client=new Socket();
-        InputStream inputStream;
-        OutputStream outputStream;
-        ObjectOutputStream objectOutputStream;
-        //JsonReader jsonReader;
-
-
-
-
-        //#TODO implement pooling method
-       // List<Future<Response>> futureResponses=new LinkedList<>();
 
         while(shouldLive){
 
             logger.info("WorkerServer "+ this.name +" is waiting for client");
             try {
-                client=serverSocket.accept();  //only 1 connection allowed to serverSocket
+                Socket client=serverSocket.accept();
                 executors.submit(new Worker(client));
             } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Exception caught when handling socket "+e.getMessage());
+                logger.warning("Exception caught when handling socket "+e.getMessage());
                 return;
             }
-
-
-
-            //#TODO - use java EE JsonReader + create a shared container (LIFO ) to give response
-
-            //reading and writing needs to be synchronized!
-
-           // Request request=new Request(new ArrayList<Job>());
-
-            //#TODO better config passing
-           // Worker workerCallable=new Worker(request,workerConfigurations.get(0));
-          // futureResponses.add(executors.submit(workerCallable));
-
-
-            //implement pooling throught futureResponses and send response when isDone() returns true;
-//            Iterator<Future<Response>> iterator=futureResponses.iterator();
-//            while(iterator.hasNext()){
-//                Future<Response> response=iterator.next();
-//                if(response.isDone()) {
-//                    try {
-//                        Response result=response.get();
-//                        iterator.remove();
-//                    } catch (InterruptedException e) {
-//                        logger.warning(e.getMessage());
-//                    } catch (ExecutionException e) {
-//                        logger.warning(e.getMessage());
-//                    }
-//                }else{
-//                    //skip or try waiting for short time ?
-//                }
-//
-//
-//            }
-
         }
+
+        executors.shutdown();
+
 
 
     }
