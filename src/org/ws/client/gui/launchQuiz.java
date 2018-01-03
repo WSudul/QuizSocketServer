@@ -60,7 +60,7 @@ public class launchQuiz extends Container {
 
         private void openWelcome(){
             quizWindow qui=new quizWindow();
-
+//todo try with repaint
             //frame.setContentPane(start.panel2);
             //panel2.add(new Label("hi"));
             //panel2.setVisible(true);
