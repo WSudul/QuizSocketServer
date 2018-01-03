@@ -1,6 +1,7 @@
 package org.ws.communication.job;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -11,8 +12,13 @@ public class Question implements Serializable  {
     private QuestionType questionType;
     private Long id;
     private String question;
-    private Set<String> possibleAnswers; //#TODO replace with <id,String
+    private Map<Long,String> possibleAnswers;
 
+    public Question(Long id, String question, Map<Long,String> possibleAnswers) {
+        this.id = id;
+        this.question = question;
+        this.possibleAnswers = possibleAnswers;
+    }
 
     public Question(){
         this.questionType=QuestionType.OneOf;
@@ -53,11 +59,11 @@ public class Question implements Serializable  {
         this.question = question;
     }
 
-    public Set<String> getPossibleAnswers() {
+    public Map<Long, String> getPossibleAnswers() {
         return possibleAnswers;
     }
 
-    public void setPossibleAnswers(Set<String> possibleAnswers) {
+    public void setPossibleAnswers(Map<Long,String> possibleAnswers) {
         this.possibleAnswers = possibleAnswers;
     }
 

@@ -1,60 +1,71 @@
 package org.ws.server.database;
 
+import org.ws.communication.job.Question;
 import org.ws.server.config.DaoConfiguration;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
-import java.util.List;
 
-public class DAO {
-
+public class DAO extends DaoBase implements IQuizDAO{
     private final static Logger logger = Logger.getLogger(DAO.class.getName());
-    private String driverName;
-    private String databaseSpecificAdress;
-    private String databaseServerAdress;
-    private Integer port;
-    private String userName;
-    private String password;
-    private String usedSchema;
+    private DaoCreator daoCreator;
+    private DaoConfiguration configuration;
     private Connection dbConnection;
-    private List<String> sqlCreateStatements;
+    private Statement st;
 
+    public DAO(DaoConfiguration configuration)  {
 
-
-    DAO(){
+        if (processConfiguration(configuration))
+            //#TODO
+            logger.info("Loaded configation for DaoCreator");
+        else {
+            logger.warning("DaoCreator was unable to load config - using default settings");
+            loadDefaultConfig();
+        }
 
     }
 
-    DAO(DaoConfiguration configuration){
+    @Override
+    public boolean initialize() {
 
-        if(processConfiguration(configuration))
-            logger.info("Loaded configation for DAO");
-        else{
-            logger.warning("DAO was unable to load config - using default settings");
-            loadDefaulConfig();
+        dbConnection = ConnectToDatabase(configuration.getUserName(), configuration.getPassword());
+
+        if (dbConnection == null) {
+            logger.warning("initialization was no completed!");
+            return false;
+        }else {
+            daoCreator = new DaoCreator();
+            daoCreator.setDbConnection(dbConnection);
+            daoCreator.setUsedSchema(configuration.getUsedSchema());
+            if (daoCreator.initialize())
+            logger.info("daoCreator initialized");
+            else
+            {
+                logger.warning("daoCreator failed to initialize");
+                return false;
             }
+        }
+        st=createStatement(dbConnection);
+        if(st==null){
+            logger.warning("unable to create Statement object during initialization");
+            return false;
+        }
 
+        return true;
     }
 
-    private void loadDefaulConfig() {
-        this.driverName="com.mysql.jdbc.Driver";
-        this.databaseSpecificAdress="jdbc:mysql://";
-        this.databaseServerAdress="localhost";
-        this.port=3306;
-        this.userName= "root";
-        this.password="root";
-        this.usedSchema="quiz";
-        this.sqlCreateStatements=new ArrayList<>();//#TODO add sql statements
 
 
-    }
 
-    public boolean loadConfiguartion(DaoConfiguration configuration){
+
+    public boolean loadConfiguartion(DaoConfiguration configuration) {
         return processConfiguration(configuration);
     }
 
@@ -62,91 +73,18 @@ public class DAO {
         return false;
     }
 
-    public boolean init(){
-        if (checkDriver(driverName))
-            logger.info("DB driver is present: "+driverName );
-        else {
-            logger.severe("No driver found under name:" +driverName);
-        }
-        // 2 sposób po³¹czenia
 
-        dbConnection=ConnectToDatabase( userName, password);
-
-        if(dbConnection==null) {
-            logger.warning("initialization was no completed!");
-            return false;
-        }
-        boolean isSchemaValid=true;
-        Statement st = createStatement(dbConnection);
-        if(!selectSchema(usedSchema,st)){
-            if(createSchema(usedSchema,st))
-            {
-                logger.info("Schema "+usedSchema+" has been created");
-                if(createTables(sqlCreateStatements,st))
-                    logger.info("Tables created");
-                else {
-                    logger.warning("Tables were not created!");
-                    isSchemaValid=false;
-                }
-            }else {
-                logger.info("Unable to create schema");
-                isSchemaValid=false;
-            }
-
-            if(isSchemaValid){
-                logger.info("Schema validation is completed");
-
-            }else {
-                logger.severe("Schema validation is not completed!");
-                return false;
-            }
-        }
-
-
-        return true;
+    private void loadDefaultConfig() {
+        if(configuration==null)
+            configuration=new DaoConfiguration();
+        configuration.setDriverName( "com.mysql.jdbc.Driver");
+        configuration.setDatabaseSpecificAddress( "jdbc:mysql://");
+        configuration.setDatabaseServerAddress ( "localhost");
+        configuration.setPort ( 3306);
+        configuration.setUserName ("root");
+        configuration.setPassword ( "root");
+        configuration.setUsedSchema ( "quiz");
     }
-
-    private int executeUpdate(Statement s, String sql) {
-        try {
-            return s.executeUpdate(sql);
-        } catch (SQLException e) {
-            logger.warning( "sql statement: "+sql+" could not be executed " +  e.getMessage() + " Error Code: " + e.getErrorCode());
-            return -1;
-        }
-
-    }
-
-    private Statement createStatement(Connection connection) {
-        try {
-            return connection.createStatement();
-        } catch (SQLException e) {
-            logger.warning( "Exception thrown when creating Statement " + e.getMessage() + " Error Code: " + e.getErrorCode());
-            System.exit(3);
-        }
-        return null;
-    }
-
-    private boolean createSchema(String usedSchema,Statement st) {
-        return executeUpdate(st, "create Database "+usedSchema+";") == 1;
-
-
-    }
-
-    private boolean createTables(List<String> sqlStatements,Statement st){
-        for(String sql:sqlStatements) {
-            if(!(0 == executeUpdate(st,
-                    sql)))
-                return false;
-        }
-        return true;
-    }
-
-    private boolean selectSchema(String usedSchema,Statement st) {
-        return executeUpdate(st, "USE nowaBaza;") == 0 ;
-
-
-    }
-
 
     private boolean checkDriver(String driver) {
         try {
@@ -158,19 +96,74 @@ public class DAO {
     }
 
 
+
+
     private Connection ConnectToDatabase(String userName, String password) {
         Properties connectionProperties = new Properties();
         connectionProperties.put("user", userName);
         connectionProperties.put("password", password);
-        Connection connection=null;
+        Connection connection = null;
         try {
 
-            connection = DriverManager.getConnection(databaseSpecificAdress+databaseServerAdress + ":" + port + "/",
+            String url=configuration.getDatabaseSpecificAddress() +
+                    configuration.getDatabaseServerAddress() + ":" + configuration.getPort() + "/";
+            connection = DriverManager.getConnection(url,
                     connectionProperties);
         } catch (SQLException e) {
             logger.severe("Could not connect to db " + e.getMessage() + " Error Code: " + e.getErrorCode());
         }
         logger.info("Connection to db estabilished");
         return connection;
+    }
+
+    @Override
+    public List<Long> getQuizes() {
+        String[] columns =new String[]{"id"};
+        String[] from={"quiz"};
+        String condition="active IS TRUE";
+
+        executeUpdate(st,new QueryBuilder()
+                .columns(Arrays.asList(columns))
+                .from(Arrays.asList(from))
+                .where(condition)
+                .BuildQuery());
+        //#TODO implement
+        return null;
+    }
+
+    @Override
+    public List<Question> getQuiz(Long quizId) {
+        String[] columns =new String[]{"id,text,answers.text"};
+        String[] from={"question,answers"};
+        String condition="WHERE quiz_id"+quizId;
+        String joinCondition="id=answers.question_id";
+
+        executeUpdate(st,new QueryBuilder()
+                .columns(Arrays.asList(columns))
+                .from(Arrays.asList(from))
+                .join(JoinType.LEFT,"answers",joinCondition)
+                .where(condition)
+                .BuildQuery());
+
+
+
+        //#TODO implement
+        return null;
+
+    }
+
+    @Override
+    public Map<Long, Long> getCorrectAnswers(Long quizId) {
+        return null;
+    }
+
+    @Override
+    public boolean persistScore(Long userId, Long quizId, Integer score) {
+        return false;
+    }
+
+    @Override
+    public Map<Long, Long> getUserScores(Long userId) {
+        return null;
     }
 }

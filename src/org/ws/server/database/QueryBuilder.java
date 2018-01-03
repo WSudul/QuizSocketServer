@@ -57,6 +57,12 @@ public class QueryBuilder {
         return this;
     }
 
+    public QueryBuilder where(String condition){
+        stringBuilder.append(where);
+        stringBuilder.append(condition);
+        return this;
+    }
+
     public QueryBuilder join(JoinType type,String table,String condition){
 
         String joinTypeString;
