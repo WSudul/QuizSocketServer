@@ -1,14 +1,12 @@
 package org.ws.communication;
 
-import org.ws.communication.job.Question;
-
 import java.io.Serializable;
 import java.util.List;
 
 public class QuizesMessage extends SocketMessage implements Serializable {
-    private static final long serialVersionUID = 0;//TOBEREPLACED
 
-    private List<Long> quizes;
+    private static final long serialVersionUID = 3590476803891320170L;
+    private List<String> quizes;
     //private Long quizId;
 
     public QuizesMessage(String author) {
@@ -20,13 +18,12 @@ public class QuizesMessage extends SocketMessage implements Serializable {
 
     }
 
-    public List<Long> getQuizes() {
+    public List<String> getQuizes() {
         return quizes;
     }
 
-    public void setQuizes(List<Long> quizes) {
+    public void setQuizes(List<String> quizes) {
         this.quizes = quizes;
     }
-
 
 }
