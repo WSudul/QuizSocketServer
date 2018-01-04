@@ -3,14 +3,11 @@ package org.ws.server;
 import org.ws.server.config.WorkerConfiguration;
 import org.ws.server.config.WorkerServerConfiguration;
 import org.ws.server.database.DAO;
-import org.ws.server.database.DaoCreator;
+import org.ws.server.database.JDBCConnectionPool;
 import org.ws.server.worker.Worker;
 
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -30,6 +27,9 @@ public class  WorkerServer implements Runnable {
     private InetAddress inetAddress;
     private Integer port = 8080;
     private DAO dao=new DAO(null);
+    private ThreadSafeSet<String> connectedUsers=new ThreadSafeSet<>();
+    private JDBCConnectionPool connectionPool;
+
 
     public WorkerServer(WorkerServerConfiguration configuration) {
 
@@ -51,6 +51,8 @@ public class  WorkerServer implements Runnable {
         if (configuration.getPort().isPresent())
             this.port = configuration.getPort().get();
 
+        if(configuration.getDbConnectionConfiguration().isPresent())
+
         workerPoolSize=workerConfigurations.size();
 
         logger.info("Created WorkerServer with name: " + this.name + " address:" + this.inetAddress.getHostAddress());
@@ -70,7 +72,12 @@ public class  WorkerServer implements Runnable {
 
     }
 
+
+
     private void handleRequests() {
+
+
+
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(port);
@@ -101,7 +108,19 @@ public class  WorkerServer implements Runnable {
 
     }
 
+    public String getName() {
+        return name;
+    }
 
+    public InetAddress getInetAddress() {
+        return inetAddress;
+    }
 
+    public Integer getPort() {
+        return port;
+    }
 
+    public long getConnectedUserCount() {
+        return connectedUsers.size();
+    }
 }
