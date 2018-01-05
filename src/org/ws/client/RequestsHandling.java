@@ -2,14 +2,14 @@ package org.ws.client;
 
 import org.ws.communication.QuizMessage;
 import org.ws.communication.QuizResultsMessage;
-import org.ws.communication.QuizesMessage;
-import org.ws.communication.RequestQuizesMessage;
+import org.ws.communication.RequestQuizListMessage;
 import org.ws.communication.job.Question;
 import org.ws.communication.job.Result;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class RequestsHandling {
@@ -27,12 +27,12 @@ public class RequestsHandling {
             List<String> listofquizes = null;
             listofquizes.add("1"); listofquizes.add("2");
             String NIU = "123";
-            RequestQuizesMessage qu = new RequestQuizesMessage(listofquizes, NIU);
+            RequestQuizListMessage qu = new RequestQuizListMessage(listofquizes, NIU);
             listofquizes=qu.getQuizes();
             try {
                 while(shouldRead){
                 System.out.println("quizes try succ");
-                output.writeObject(new RequestQuizesMessage(listofquizes, NIU));}
+                output.writeObject(new RequestQuizListMessage(listofquizes, NIU));}
             } catch (IOException e) {
                 System.out.println("quizes try failed");
                 System.out.println(e.getMessage());
@@ -46,7 +46,10 @@ public class RequestsHandling {
             List<Question> questions=null;
             String NIU = "123";
             Question first=new Question();
-            first.setId(1l);first.setQuestion("Why though"); Set<String> answers = null; answers.add("dont ask"); answers.add("yea"); first.setPossibleAnswers(answers);
+            first.setId(1l);first.setQuestion("Why though");
+            Map<Long,String> answers = null;
+            answers.put(1l,"dont ask");
+            answers.put(2l,"yea"); first.setPossibleAnswers(answers);
             QuizMessage qu=new QuizMessage(NIU);
             questions=qu.getQuestions();
             return questions;

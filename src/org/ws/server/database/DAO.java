@@ -17,7 +17,12 @@ public class DAO extends DaoBase implements IQuizDAO{
     private Connection dbConnection;
     private Statement st;
 
-    public DAO(DaoConfiguration configuration)  {
+
+
+
+    public DAO(DaoConfiguration configuration,Connection connection)  {
+
+        this.dbConnection=connection;
 
         if (processConfiguration(configuration))
             //#TODO
@@ -32,7 +37,6 @@ public class DAO extends DaoBase implements IQuizDAO{
     @Override
     public boolean initialize() {
         System.out.println("DAO initialize()");
-        dbConnection = ConnectToDatabase(configuration.getUserName(), configuration.getPassword());
 
         if (dbConnection == null) {
             logger.warning("initialization was no completed!");
@@ -66,19 +70,20 @@ public class DAO extends DaoBase implements IQuizDAO{
     }
 
     private boolean processConfiguration(DaoConfiguration configuration) {
-        return false;
+
+        if(configuration==null)
+        {
+            return false;
+        }
+
+        this.configuration=configuration;
+        return true;
     }
 
 
     private void loadDefaultConfig() {
         if(configuration==null)
             configuration=new DaoConfiguration();
-        configuration.setDriverName( "com.mysql.jdbc.Driver");
-        configuration.setDatabaseSpecificAddress( "jdbc:mysql://");
-        configuration.setDatabaseServerAddress ( "127.0.0.1");
-        configuration.setPort (3306);
-        configuration.setUserName ("quiz_account");
-        configuration.setPassword ( "quiz_account");
         configuration.setUsedSchema ( "quiztest123");
          List<String> sqlCreationList=new ArrayList<>();
 
@@ -114,24 +119,6 @@ public class DAO extends DaoBase implements IQuizDAO{
 
 
 
-    private Connection ConnectToDatabase(String userName, String password) {
-        Properties connectionProperties = new Properties();
-        connectionProperties.put("user", userName);
-        connectionProperties.put("password", password);
-        Connection connection = null;
-        try {
-
-            String url=configuration.getDatabaseSpecificAddress() +
-                    configuration.getDatabaseServerAddress() + ":" + configuration.getPort() + "/";
-            connection = DriverManager.getConnection(url,
-                    connectionProperties);
-        } catch (SQLException e) {
-            logger.severe("Could not connect to db : " + e.getMessage() + " Error Code: " + e.getErrorCode());
-            return null;
-        }
-        logger.info("Connection to db estabilished");
-        return connection;
-    }
 
     @Override
     public List<Long> getQuizes() {

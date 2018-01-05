@@ -1,5 +1,6 @@
 package org.ws.server;
 
+import org.ws.server.config.DBConnectionConfiguration;
 import org.ws.server.config.WorkerConfiguration;
 import org.ws.server.config.WorkerServerConfiguration;
 import org.ws.server.database.DAO;
@@ -26,13 +27,34 @@ public class  WorkerServer implements Runnable {
     private int serverPoolSize = 5;
     private InetAddress inetAddress;
     private Integer port = 8080;
-    private DAO dao=new DAO(null);
+    private DAO dao;
     private ThreadSafeSet<String> connectedUsers=new ThreadSafeSet<>();
     private JDBCConnectionPool connectionPool;
+    private WorkerServerConfiguration workerServerConfiguration;
 
 
     public WorkerServer(WorkerServerConfiguration configuration) {
+        this.workerServerConfiguration=configuration;
 
+        logger.info("WorkerServer is being configured");
+
+
+        //#TODO wrap this
+        DBConnectionConfiguration connConfig=configuration.getDbConnectionConfiguration();
+
+        String url=connConfig.getDatabaseSpecificAddress() +
+                connConfig.getDatabaseServerAddress() + ":" + connConfig.getPort() + "/";
+
+        logger.info("creating connection pool to "+url);
+        connectionPool=new JDBCConnectionPool(connConfig.getDriverName(),url,connConfig.getUserName(),
+                connConfig.getPassword());
+
+
+        dao=new DAO(configuration.getDaoConfiguration(),connectionPool.checkOut());
+        logger.info("Dao object created");
+
+
+        //#TODO create configure method
         if (configuration.getName().isPresent())
             this.name = configuration.getName().get();
 
@@ -51,7 +73,8 @@ public class  WorkerServer implements Runnable {
         if (configuration.getPort().isPresent())
             this.port = configuration.getPort().get();
 
-        if(configuration.getDbConnectionConfiguration().isPresent())
+
+        logger.info("WorkerServer is almost configured");
 
         workerPoolSize=workerConfigurations.size();
 
@@ -95,7 +118,7 @@ public class  WorkerServer implements Runnable {
             logger.info("WorkerServer "+ this.name +" is waiting for client");
             try {
                 Socket client=serverSocket.accept();
-                executors.submit(new Worker(client));
+                executors.submit(new Worker(client,connectedUsers,connectionPool.checkOut()));
             } catch (IOException e) {
                 logger.warning("Exception caught when handling socket "+e.getMessage());
                 return;

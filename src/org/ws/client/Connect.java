@@ -72,13 +72,17 @@ public class Connect {
         } catch (IOException e) {
             System.out.println(e.getMessage());
                 System.out.println("I'm here");
-                output.writeObject(new RequestQuizListMessage(null, hostIP));
-                System.out.println("request sent");
+            try {
+                output.writeObject(new RequestQuizListMessage(null, "client"));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            System.out.println("request sent");
             } catch (Exception e) {
                 System.err.println(e);
             }
         }
-    }
+
 
 
 

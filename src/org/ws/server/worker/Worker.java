@@ -3,6 +3,7 @@ package org.ws.server.worker;
 
 import org.ws.communication.*;
 import org.ws.communication.job.Question;
+import org.ws.server.ThreadSafeSet;
 
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 import java.util.List;
@@ -17,7 +19,8 @@ import java.util.List;
 public class Worker implements Runnable {
 
     private final static Logger logger = Logger.getLogger(Worker.class.getName());
-
+    private  ThreadSafeSet<String> connectedUsers;
+    private  Connection connection;
     private RequestQuizMessage request;
     private InputStream inputStream;
     private Socket client;
@@ -27,9 +30,11 @@ public class Worker implements Runnable {
     private boolean shouldRead=true;
     private String workerName;
 
-    public Worker(Socket client) {
+    public Worker(Socket client, ThreadSafeSet<String> connectedUsers, Connection connection) {
         this.client = client;
         this.workerName ="server "+Thread.currentThread().getName();
+        this.connectedUsers=connectedUsers;
+        this.connection=connection;
     }
 
     @Override
@@ -47,6 +52,21 @@ public class Worker implements Runnable {
         }
         try {
             //#TODO receive request;
+
+
+            Object firstMessage = input.readObject();
+            if (!isValidMessage(firstMessage)) {
+                output.writeObject(new RejectionMessage(workerName, null, "Unrecognized message received!"));
+                performClose();
+            }else
+            {
+                clientName=((SocketMessage) firstMessage).getAuthor();
+                if(!connectedUsers.set(clientName)){
+                    output.writeObject(new EndCommunicationMessage(workerName));
+                    performClose();
+                }
+
+            }
             while(shouldRead){
                 logger.info(Thread.currentThread().toString());
                 Object receivedMessage = input.readObject();
@@ -54,12 +74,15 @@ public class Worker implements Runnable {
                     output.writeObject(new RejectionMessage(workerName, null, "Unrecognized message received!"));
                 } else {
                     //#TODO handle messages and responses
-                    SocketMessage name= (SocketMessage) receivedMessage;
-                    clientName=((SocketMessage) receivedMessage).getAuthor();
 
-                    if(!addClientToList(clientName)){
+                    String author=((SocketMessage) receivedMessage).getAuthor();
+                    if(!author.equalsIgnoreCase(clientName))
+                    {
                         output.writeObject(new EndCommunicationMessage(workerName));
+                        performClose();
+                        break;
                     }
+
 
                     SocketMessage message=null;
 
