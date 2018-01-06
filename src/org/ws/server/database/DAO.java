@@ -10,7 +10,7 @@ import java.sql.Statement;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class DAO extends DaoBase implements IQuizDAO{
+public class DAO extends DaoBase{
     private final static Logger logger = Logger.getLogger(DAO.class.getName());
     private DaoCreator daoCreator;
     private DaoConfiguration configuration;
@@ -118,56 +118,4 @@ public class DAO extends DaoBase implements IQuizDAO{
 
 
 
-
-
-    @Override
-    public List<Long> getQuizes() {
-        String[] columns =new String[]{"id"};
-        String[] from={"quiz"};
-        String condition="active IS TRUE";
-
-        executeUpdate(st,new QueryBuilder()
-                .columns(Arrays.asList(columns))
-                .from(Arrays.asList(from))
-                .where(condition)
-                .BuildQuery());
-        //#TODO implement
-        return null;
-    }
-
-    @Override
-    public List<Question> getQuiz(Long quizId) {
-        String[] columns =new String[]{"id,text,answers.text"};
-        String[] from={"question,answers"};
-        String condition="WHERE quiz_id"+quizId;
-        String joinCondition="id=answers.question_id";
-
-        executeUpdate(st,new QueryBuilder()
-                .columns(Arrays.asList(columns))
-                .from(Arrays.asList(from))
-                .join(JoinType.LEFT,"answers",joinCondition)
-                .where(condition)
-                .BuildQuery());
-
-
-
-        //#TODO implement
-        return null;
-
-    }
-
-    @Override
-    public Map<Long, Long> getCorrectAnswers(Long quizId) {
-        return null;
-    }
-
-    @Override
-    public boolean persistScore(Long userId, Long quizId, Integer score) {
-        return false;
-    }
-
-    @Override
-    public Map<Long, Long> getUserScores(Long userId) {
-        return null;
-    }
 }

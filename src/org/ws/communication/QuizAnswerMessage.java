@@ -7,30 +7,29 @@ import java.io.Serializable;
 import java.util.List;
 
 
-public class QuizAnswersMessage extends SocketMessage implements Serializable {
+public class QuizAnswerMessage extends SocketMessage implements Serializable {
 
 
     private static final long serialVersionUID = 8100311873209486609L;
-    private List<Answer> questions;
+    private List<Answer> answers;
     private Long quizId;
 
-    public QuizAnswersMessage(String author) {
+    public QuizAnswerMessage(String author) {
         super(author);
 
     }
 
     @Deprecated
-    public QuizAnswersMessage() {
+    public QuizAnswerMessage() {
 
     }
 
-
-    public List<Answer> getQuestions() {
-        return questions;
+    public List<Answer> getAnswers() {
+        return answers;
     }
 
-    public void setQuestions(List<Answer> questions) {
-        this.questions = questions;
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
     }
 
     public Long getQuizId() {

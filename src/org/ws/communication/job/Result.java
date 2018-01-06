@@ -1,19 +1,19 @@
 package org.ws.communication.job;
 
+import java.util.List;
 import java.io.Serializable;
 
 public class Result implements Serializable{
 
     private static final long serialVersionUID = -8396862149531067009L;
-    private final Boolean successful;
-    private final String originalAnswer;
-    private final String providedAnswer;
-    private final Long questionId;
+    private  List<Long> validAnswers;
+    private  List<Long> providedAnswer;
+    private  Long questionId;
 
 
-    public Result(boolean successful, String originalAnswer, String providedAnswer, Long questionId) {
-        this.successful = successful;
-        this.originalAnswer = originalAnswer;
+
+    public Result(List<Long> validAnswers, List<Long>providedAnswer, Long questionId) {
+        this.validAnswers = validAnswers;
         this.providedAnswer = providedAnswer;
         this.questionId = questionId;
     }
@@ -21,21 +21,17 @@ public class Result implements Serializable{
     @Deprecated
     public Result(){
 
-        successful = null;
-        originalAnswer = null;
-        providedAnswer = null;
-        questionId = null;
     }
 
     public boolean isSuccessful() {
-        return successful;
+        return providedAnswer.equals(validAnswers);
     }
 
-    public String getOriginalAnswer() {
-        return originalAnswer;
+    public List<Long> getValidAnswers() {
+        return validAnswers;
     }
 
-    public String getProvidedAnswer() {
+    public List<Long> getProvidedAnswer() {
         return providedAnswer;
     }
 

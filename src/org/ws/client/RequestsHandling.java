@@ -8,6 +8,7 @@ import org.ws.communication.job.Result;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +59,9 @@ public class RequestsHandling {
         protected List<Result> resultsChosen(){
             String NIU = "123";
             List<Result> results=null;
-            Result res=new Result(true, "Why though", "whyy", 1l) ;
+            List<Long> valid=new ArrayList<Long>(){{add(1l);}};
+            List<Long> provided=new ArrayList<Long>(){{add(2l);}};
+            Result res=new Result(valid,provided, 1l) ;
             results.add(res);
             QuizResultsMessage qu= new QuizResultsMessage(NIU);
             results=qu.getResults();

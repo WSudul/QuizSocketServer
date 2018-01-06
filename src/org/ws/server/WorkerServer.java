@@ -39,7 +39,6 @@ public class  WorkerServer implements Runnable {
         logger.info("WorkerServer is being configured");
 
 
-        //#TODO wrap this
         DBConnectionConfiguration connConfig=configuration.getDbConnectionConfiguration();
 
         String url=connConfig.getDatabaseSpecificAddress() +
@@ -49,12 +48,25 @@ public class  WorkerServer implements Runnable {
         connectionPool=new JDBCConnectionPool(connConfig.getDriverName(),url,connConfig.getUserName(),
                 connConfig.getPassword());
 
-
-        dao=new DAO(configuration.getDaoConfiguration(),connectionPool.checkOut());
         logger.info("Dao object created");
+        dao=new DAO(configuration.getDaoConfiguration(),connectionPool.checkOut());
 
 
-        //#TODO create configure method
+
+        this.configure(configuration);
+
+        //#TODO wrap this
+
+        logger.info("WorkerServer is almost configured");
+
+
+
+        logger.info("Created WorkerServer with name: " + this.name + " address:" + this.inetAddress.getHostAddress());
+
+    }
+
+    private void configure(WorkerServerConfiguration configuration) {
+
         if (configuration.getName().isPresent())
             this.name = configuration.getName().get();
 
@@ -73,12 +85,7 @@ public class  WorkerServer implements Runnable {
         if (configuration.getPort().isPresent())
             this.port = configuration.getPort().get();
 
-
-        logger.info("WorkerServer is almost configured");
-
         workerPoolSize=workerConfigurations.size();
-
-        logger.info("Created WorkerServer with name: " + this.name + " address:" + this.inetAddress.getHostAddress());
 
     }
 
