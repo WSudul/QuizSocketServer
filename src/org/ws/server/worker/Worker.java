@@ -10,7 +10,6 @@ import org.ws.server.database.IQuizDAO;
 import org.ws.server.database.QuizDAO;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -25,8 +24,6 @@ public class Worker implements Runnable {
     private final static Logger logger = Logger.getLogger(Worker.class.getName());
     private ThreadSafeSet<String> connectedUsers;
     private Connection connection;
-    private RequestQuizMessage request;
-    private InputStream inputStream;
     private Socket client;
     private String clientName;
     private ObjectInputStream input;
@@ -34,6 +31,7 @@ public class Worker implements Runnable {
     private boolean shouldRead = true;
     private String workerName;
     private IQuizDAO quizDAO;
+    private Long currentQuizId;
 
     public Worker(Socket client, ThreadSafeSet<String> connectedUsers, Connection connection) {
         this.client = client;
@@ -41,6 +39,7 @@ public class Worker implements Runnable {
         this.connectedUsers = connectedUsers;
         this.connection = connection;
         quizDAO = new QuizDAO(connection);
+        currentQuizId=null;
     }
 
     @Override
@@ -74,7 +73,7 @@ public class Worker implements Runnable {
                 Object receivedMessage = input.readObject();
 
                 if (!isValidMessage(receivedMessage)) {
-                    output.writeObject(new RejectionMessage(workerName, null, "Unrecognized message received!"));
+                    sendRejectionMessage("Unrecognized message received!");
                 } else {
                     //#TODO handle messages and responses
                     boolean messageHandled = true;
@@ -96,7 +95,7 @@ public class Worker implements Runnable {
                         output.writeObject(quizList);
 
                     } else if (receivedMessage instanceof RequestQuizMessage) {
-                        request = (RequestQuizMessage) receivedMessage;
+                        RequestQuizMessage request = (RequestQuizMessage) receivedMessage;
                         Optional<List<Question>> quiz = quizDAO.getQuiz(request.getQuizId());
 
                         if (quiz.isPresent()) {
@@ -104,29 +103,41 @@ public class Worker implements Runnable {
                             payload.setQuestions(new ArrayList<>());
                             payload.setQuizId(request.getQuizId());
                             output.writeObject(payload);
+                            currentQuizId=request.getQuizId();
                         } else
-                            output.writeObject(new RejectionMessage(workerName, null, "No quiz found"));
+                            sendRejectionMessage("No quiz found");
 
 
                     } else if (receivedMessage instanceof QuizAnswerMessage) {
 
 
                         QuizAnswerMessage quizAnswerMessage = (QuizAnswerMessage) receivedMessage;
-                        List<Long> unpersisted = new ArrayList<>();
-                        for (Answer answer : quizAnswerMessage.getAnswers()) {
-                            if (!quizDAO.persistAnswer(clientName, answer.getAnswerId(),
-                                    answer.getQuestionId(), answer.getQuestionId())) {
-                                logger.warning("Could not persist answer user:" + clientName
-                                        + " question: " + answer.getQuestionId() +
-                                        " answer: " + answer.getAnswerId());
-                                unpersisted.add(answer.getQuestionId());
 
+                        if(!currentQuizId.equals(quizAnswerMessage.getQuizId())){
+                            sendRejectionMessage("Bad quiz id given!");
+                        }else{
+                            List<Long> unpersisted = new ArrayList<>();
+                            for (Answer answer : quizAnswerMessage.getAnswers()) {
+
+                                boolean was_persisted=quizDAO.persistAnswer(clientName, quizAnswerMessage.getQuizId(),
+                                        answer.getQuestionId(), answer.getQuestionId());
+
+                                if (!was_persisted) {
+                                    logger.warning("Could not persist answer user:" + clientName
+                                            + " question: " + answer.getQuestionId() +
+                                            " answer: " + answer.getAnswerId());
+                                    unpersisted.add(answer.getQuestionId());
+
+                                }
                             }
+
+                            if (!unpersisted.isEmpty())
+                                sendRejectionMessage("Could not persist answers" +
+                                        ":" + unpersisted.toString());
+                            else
+                                output.writeObject(new OkResponseMessage(clientName));
                         }
 
-                        if (!unpersisted.isEmpty())
-                            output.writeObject(new RejectionMessage(workerName, null, "Could not persist answers" +
-                                    ":" + unpersisted.toString()));
 
 
                     } else if (receivedMessage instanceof ResultsRequestMessage) {
@@ -144,7 +155,7 @@ public class Worker implements Runnable {
                     } else if (receivedMessage instanceof EndCommunicationMessage) {
                         performClose();
                     } else {
-                        output.writeObject(new RejectionMessage(workerName, null, "Unhandled message type received"));
+                        sendRejectionMessage("Unhandled message type received");
                     }
 
 
@@ -161,14 +172,6 @@ public class Worker implements Runnable {
             performClose();
             return;
         }
-    }
-
-
-    //#TODO access shared list between all threads
-    private boolean addClientToList(String clientName) {
-
-
-        return true;
     }
 
     private void performClose() {
@@ -192,6 +195,10 @@ public class Worker implements Runnable {
 
     private boolean isLoginMessage(Object message) {
         return (isValidMessage(message) && message instanceof QuizLoginMessage);
+    }
+
+    private void sendRejectionMessage(String message) throws IOException {
+        output.writeObject(new RejectionMessage(workerName, null, message));
     }
 
 
