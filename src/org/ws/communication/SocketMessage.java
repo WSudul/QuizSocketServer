@@ -11,13 +11,13 @@ public abstract class SocketMessage implements Serializable {
     private final String author;
 
     @Deprecated
-    SocketMessage(){
+    SocketMessage() {
 
         author = null;
     }
 
 
-    SocketMessage(String author){
+    SocketMessage(String author) {
         this.author = author;
     }
 

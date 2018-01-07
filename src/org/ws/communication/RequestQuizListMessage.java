@@ -10,13 +10,14 @@ public class RequestQuizListMessage extends SocketMessage implements Serializabl
 
     private List<String> quizes;
 
-    public RequestQuizListMessage(List<String> quizes, String requesterName){
+    public RequestQuizListMessage(List<String> quizes, String requesterName) {
         super(requesterName);
         this.quizes = quizes;
     }
 
     @Deprecated
-    public RequestQuizListMessage(){    }
+    public RequestQuizListMessage() {
+    }
 
     public List<String> getQuizes() {
         return quizes;

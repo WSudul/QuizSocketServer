@@ -11,16 +11,8 @@ public class launchQuiz extends Container {
     private JButton loginButton;
     private JLabel niuLabel;
     private String niu;
-    private JFrame frame,framewelcome;
+    private JFrame frame, framewelcome;
 
-
-    public void setNiu(String niu) {
-        this.niu = niu;
-    }
-
-    public String getNIU() {
-        return niu;
-    }
 
     launchQuiz() {
         //this.framewelcome=frame;
@@ -58,13 +50,20 @@ public class launchQuiz extends Container {
         });
     }
 
-        private void openWelcome(){
-            quizWindow qui=new quizWindow();
-//todo try with repaint
-            //frame.setContentPane(start.panel2);
-            //panel2.add(new Label("hi"));
-            //panel2.setVisible(true);
+    public void setNiu(String niu) {
+        this.niu = niu;
+    }
 
+    public String getNIU() {
+        return niu;
+    }
+
+    private void openWelcome() {
+        quizWindow qui = new quizWindow();
+//todo try with repaint
+        //frame.setContentPane(start.panel2);
+        //panel2.add(new Label("hi"));
+        //panel2.setVisible(true);
 
 
     }

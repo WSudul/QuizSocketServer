@@ -23,7 +23,7 @@ public class QuizResultsMessage extends SocketMessage implements Serializable {
 
     public QuizResultsMessage(String author) {
         super(author);
-        this.score=0f;
+        this.score = 0f;
     }
 
     @Deprecated
@@ -40,15 +40,15 @@ public class QuizResultsMessage extends SocketMessage implements Serializable {
         calculateScore();
     }
 
-    private void calculateScore(){
-        int size=results.size();
-        int validCount=0;
-        for(Result result:results){
-            if(result.isSuccessful())
+    private void calculateScore() {
+        int size = results.size();
+        int validCount = 0;
+        for (Result result : results) {
+            if (result.isSuccessful())
                 ++validCount;
         }
 
-        this.score= Float.valueOf((float)validCount/size);
+        this.score = Float.valueOf((float) validCount / size);
     }
 
     public Float getScore() {

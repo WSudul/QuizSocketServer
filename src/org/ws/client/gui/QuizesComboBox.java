@@ -11,13 +11,8 @@ import java.util.List;
 
 public class QuizesComboBox {
 
-    public JComboBox getComboBox() {
-        return comboBox;
-    }
-
     private JComboBox comboBox;
     private JTextField textField;
-
     public QuizesComboBox() {
         textField = new JTextField(15);
         textField.addActionListener(new ActionListener() {
@@ -30,8 +25,8 @@ public class QuizesComboBox {
             }
         });
 
-        QuizListMessage qu=new QuizListMessage();
-        List<String> quizes= qu.getQuizes();
+        QuizListMessage qu = new QuizListMessage();
+        List<String> quizes = qu.getQuizes();
         SortedComboBoxModel model = new SortedComboBoxModel(quizes);
         comboBox = new JComboBox(model);
         comboBox.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
@@ -43,6 +38,10 @@ public class QuizesComboBox {
         frame.setVisible(true);*/
     }
 
+    public JComboBox getComboBox() {
+        return comboBox;
+    }
+
     private class SortedComboBoxModel extends DefaultComboBoxModel {
 
         public SortedComboBoxModel() {
@@ -50,7 +49,7 @@ public class QuizesComboBox {
         }
 
 
-        public SortedComboBoxModel(List <String>items) {
+        public SortedComboBoxModel(List<String> items) {
             Collections.sort(items);
             int size = items.size();
             for (int i = 0; i < size; i++) {

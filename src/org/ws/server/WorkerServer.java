@@ -7,15 +7,21 @@ import org.ws.server.database.DAO;
 import org.ws.server.database.JDBCConnectionPool;
 import org.ws.server.worker.Worker;
 
-
 import java.io.IOException;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 
-public class  WorkerServer implements Runnable {
+public class WorkerServer implements Runnable {
 
 
     private final static Logger logger = Logger.getLogger(WorkerServer.class.getName());
@@ -28,29 +34,28 @@ public class  WorkerServer implements Runnable {
     private InetAddress inetAddress;
     private Integer port = 8080;
     private DAO dao;
-    private ThreadSafeSet<String> connectedUsers=new ThreadSafeSet<>();
+    private ThreadSafeSet<String> connectedUsers = new ThreadSafeSet<>();
     private JDBCConnectionPool connectionPool;
     private WorkerServerConfiguration workerServerConfiguration;
 
 
     public WorkerServer(WorkerServerConfiguration configuration) {
-        this.workerServerConfiguration=configuration;
+        this.workerServerConfiguration = configuration;
 
         logger.info("WorkerServer is being configured");
 
 
-        DBConnectionConfiguration connConfig=configuration.getDbConnectionConfiguration();
+        DBConnectionConfiguration connConfig = configuration.getDbConnectionConfiguration();
 
-        String url=connConfig.getDatabaseSpecificAddress() +
+        String url = connConfig.getDatabaseSpecificAddress() +
                 connConfig.getDatabaseServerAddress() + ":" + connConfig.getPort() + "/";
 
-        logger.info("creating connection pool to "+url);
-        connectionPool=new JDBCConnectionPool(connConfig.getDriverName(),url,connConfig.getUserName(),
+        logger.info("creating connection pool to " + url);
+        connectionPool = new JDBCConnectionPool(connConfig.getDriverName(), url, connConfig.getUserName(),
                 connConfig.getPassword());
 
         logger.info("Dao object created");
-        dao=new DAO(configuration.getDaoConfiguration(),connectionPool.checkOut());
-
+        dao = new DAO(configuration.getDaoConfiguration(), connectionPool.checkOut());
 
 
         this.configure(configuration);
@@ -58,7 +63,6 @@ public class  WorkerServer implements Runnable {
         //#TODO wrap this
 
         logger.info("WorkerServer is almost configured");
-
 
 
         logger.info("Created WorkerServer with name: " + this.name + " address:" + this.inetAddress.getHostAddress());
@@ -85,7 +89,7 @@ public class  WorkerServer implements Runnable {
         if (configuration.getPort().isPresent())
             this.port = configuration.getPort().get();
 
-        workerPoolSize=workerConfigurations.size();
+        workerPoolSize = workerConfigurations.size();
 
     }
 
@@ -94,7 +98,7 @@ public class  WorkerServer implements Runnable {
         //call looping method
         logger.info("Server " + this.name + " thread is started: " + Thread.currentThread().getName());
 
-        if(!dao.initialize()) {
+        if (!dao.initialize()) {
             logger.severe("Could not  valid ensure database access");
             //return;
         }
@@ -103,37 +107,34 @@ public class  WorkerServer implements Runnable {
     }
 
 
-
     private void handleRequests() {
-
 
 
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-           logger.warning(name + " " + e.getMessage());
+            logger.warning(name + " " + e.getMessage());
 
         }
         //make it thread safe variable
-        boolean shouldLive=true;
+        boolean shouldLive = true;
 
-        executors =  Executors.newFixedThreadPool(workerPoolSize);
+        executors = Executors.newFixedThreadPool(workerPoolSize);
 
-        while(shouldLive){
+        while (shouldLive) {
 
-            logger.info("WorkerServer "+ this.name +" is waiting for client");
+            logger.info("WorkerServer " + this.name + " is waiting for client");
             try {
-                Socket client=serverSocket.accept();
-                executors.submit(new Worker(client,connectedUsers,connectionPool.checkOut()));
+                Socket client = serverSocket.accept();
+                executors.submit(new Worker(client, connectedUsers, connectionPool.checkOut()));
             } catch (IOException e) {
-                logger.warning("Exception caught when handling socket "+e.getMessage());
+                logger.warning("Exception caught when handling socket " + e.getMessage());
                 return;
             }
         }
 
         executors.shutdown();
-
 
 
     }

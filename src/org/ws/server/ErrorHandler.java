@@ -9,7 +9,9 @@ import java.io.OutputStream;
 public class ErrorHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        String error = "{\"error\": \"No route for " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI() + ".\"}";
+        String error =
+                "{\"error\": \"No route for " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI() +
+                        ".\"}";
         httpExchange.getResponseHeaders().add("Content-Type", "application/json");
         httpExchange.sendResponseHeaders(404, error.getBytes().length);
         OutputStream outputStream = httpExchange.getResponseBody();

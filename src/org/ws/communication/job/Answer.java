@@ -1,7 +1,7 @@
 package org.ws.communication.job;
 
-import java.util.List;
 import java.io.Serializable;
+import java.util.List;
 
 public class Answer implements Serializable {
     private static final long serialVersionUID = 2631924532682336018L;

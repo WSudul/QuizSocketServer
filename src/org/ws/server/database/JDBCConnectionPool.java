@@ -15,7 +15,7 @@ public class JDBCConnectionPool extends ObjectPool<Connection> {
         try {
             Class.forName(driver).newInstance();
         } catch (Exception e) {
-            System.out.println("JDBCConnectionPool exception caught:"+ e);
+            System.out.println("JDBCConnectionPool exception caught:" + e);
         }
         this.dsn = dsn;
         this.usr = usr;
@@ -28,7 +28,7 @@ public class JDBCConnectionPool extends ObjectPool<Connection> {
             System.out.println("Creating new Connection");
             return (DriverManager.getConnection(dsn, usr, pwd));
         } catch (SQLException e) {
-            System.out.println("JDBCConnectionPool exception caught:"+ e);
+            System.out.println("JDBCConnectionPool exception caught:" + e);
             return (null);
         }
     }
@@ -38,7 +38,7 @@ public class JDBCConnectionPool extends ObjectPool<Connection> {
         try {
             ((Connection) o).close();
         } catch (SQLException e) {
-            System.out.println("JDBCConnectionPool exception caught:"+ e);
+            System.out.println("JDBCConnectionPool exception caught:" + e);
         }
     }
 
@@ -47,7 +47,7 @@ public class JDBCConnectionPool extends ObjectPool<Connection> {
         try {
             return (!((Connection) o).isClosed());
         } catch (SQLException e) {
-            System.out.println("JDBCConnectionPool exception caught:"+ e);
+            System.out.println("JDBCConnectionPool exception caught:" + e);
             return (false);
         }
     }

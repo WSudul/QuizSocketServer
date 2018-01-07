@@ -10,10 +10,10 @@ public class RejectionMessage extends SocketMessage implements Serializable {
     private Long quizId;
     private String reason;
 
-    public RejectionMessage(String author,Long quizId,String reason) {
+    public RejectionMessage(String author, Long quizId, String reason) {
         super(author);
-        this.quizId=quizId;
-        this.reason=reason;
+        this.quizId = quizId;
+        this.reason = reason;
 
     }
 

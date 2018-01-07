@@ -14,9 +14,11 @@ public class WorkerServerConfiguration {
     private DBConnectionConfiguration dbConnectionConfiguration;
     private DaoConfiguration daoConfiguration;
 
-    public WorkerServerConfiguration(){}
+    public WorkerServerConfiguration() {
+    }
 
-    public WorkerServerConfiguration(String name, InetAddress inetAddress, Integer port, Integer serverThreadPoolSize, List<WorkerConfiguration> workerConfigurations) {
+    public WorkerServerConfiguration(String name, InetAddress inetAddress, Integer port, Integer
+            serverThreadPoolSize, List<WorkerConfiguration> workerConfigurations) {
         this.name = Optional.ofNullable(name);
         this.inetAddress = Optional.ofNullable(inetAddress);
         this.port = Optional.ofNullable(port);

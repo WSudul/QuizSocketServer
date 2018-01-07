@@ -6,7 +6,4 @@ package org.ws.server.database;
 public class Query {
 
 
-
-
-
 }

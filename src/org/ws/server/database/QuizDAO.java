@@ -22,6 +22,15 @@ public class QuizDAO implements IQuizDAO {
         st = createStatement(this.connection);
     }
 
+    private static ResultSet executeQuery(Statement s, String sql) {
+        try {
+            return s.executeQuery(sql);
+        } catch (SQLException e) {
+            logger.warning(
+                    "Query ws not executed! " + e.getMessage() + " Error Code: " + e.getErrorCode());
+        }
+        return null;
+    }
 
     @Override
     public List<Long> getQuizList() {
@@ -80,9 +89,9 @@ public class QuizDAO implements IQuizDAO {
                 }
                 Map<Long, String> possibleAnswers = questionMap.get(questionId).getPossibleAnswers();
                 possibleAnswers.put(results.getLong("answers.id"),
-                            results.getString("answers.text"));
+                        results.getString("answers.text"));
 
-                if(possibleAnswers.size()>1)
+                if (possibleAnswers.size() > 1)
                     questionMap.get(questionId).setQuestionType(QuestionType.Multiple);
             }
 
@@ -94,7 +103,6 @@ public class QuizDAO implements IQuizDAO {
         return Optional.ofNullable(questions);
 
     }
-
 
     @Override
     public Optional<List<Result>> getCorrectAnswers(Long quizId) {
@@ -140,8 +148,8 @@ public class QuizDAO implements IQuizDAO {
 
                     questionResult.put(questionId, result);
                 }
-                Long validAnswer=results.getLong("correct_answers.answer_id");
-                if(!questionResult.get(questionId).getValidAnswers().contains(validAnswer))
+                Long validAnswer = results.getLong("correct_answers.answer_id");
+                if (!questionResult.get(questionId).getValidAnswers().contains(validAnswer))
                     questionResult.get(questionId).getValidAnswers().add(validAnswer);
 
             }
@@ -178,32 +186,30 @@ public class QuizDAO implements IQuizDAO {
     @Override
     public Optional<Map<Long, Long>> getUserScores(String userId) {
 
-        Map<Long, Long> userScores=new HashMap<>();
+        Map<Long, Long> userScores = new HashMap<>();
         List<Long> quizList = this.getQuizList();
 
-        if(quizList.isEmpty())
+        if (quizList.isEmpty())
             return null;
 
-        for(Long id:quizList){
+        for (Long id : quizList) {
             Optional<List<Result>> answers = getUserAnswers(userId, id);
-            if(answers.isPresent()){
-                Long score=0l;
-                Long maxScore=0l;
-                for(Result result:answers.get())
-                {
+            if (answers.isPresent()) {
+                Long score = 0l;
+                Long maxScore = 0l;
+                for (Result result : answers.get()) {
                     ++maxScore;
-                    if(result.isSuccessful());
-                        ++score;
+                    if (result.isSuccessful()) ;
+                    ++score;
                 }
-                Long finalScore=score==maxScore?maxScore: ((long) ((float)score/maxScore*100));
+                Long finalScore = score == maxScore ? maxScore : ((long) ((float) score / maxScore * 100));
 
-                userScores.put(id,finalScore);
+                userScores.put(id, finalScore);
 
             }
         }
 
         return Optional.ofNullable(userScores);
-
 
 
     }
@@ -212,16 +218,16 @@ public class QuizDAO implements IQuizDAO {
     public Optional<List<Result>> getUserAnswers(String user, Long quizId) {
 
         Optional<List<Result>> quizResults = getCorrectAnswers(quizId);
-        if(!quizResults.isPresent())
+        if (!quizResults.isPresent())
             return null;
 
-        Set<Long> questionListId=new HashSet<>();
-        for(Result result:quizResults.get())
+        Set<Long> questionListId = new HashSet<>();
+        for (Result result : quizResults.get())
             questionListId.add(result.getQuestionId());
 
         List<String> columns = Arrays.asList("question_id,answer_id");
         List<String> from = Arrays.asList("results");
-        String condition = "WHERE NIU="+user+" AND quiz_id IS IN(" + questionListId.stream()
+        String condition = "WHERE NIU=" + user + " AND quiz_id IS IN(" + questionListId.stream()
                 .map(id -> id.toString())
                 .collect(Collectors.joining(",")) + ")";
 
@@ -250,7 +256,7 @@ public class QuizDAO implements IQuizDAO {
 
             }
 
-            for(Result result:quizResults.get()) {
+            for (Result result : quizResults.get()) {
                 result.setProvidedAnswer(questionAnswers.get(result.getQuestionId()));
             }
         } catch (SQLException e) {
@@ -261,7 +267,6 @@ public class QuizDAO implements IQuizDAO {
 
         return quizResults;
     }
-
 
     private int executeUpdate(Statement s, String sql) {
         try {
@@ -274,7 +279,6 @@ public class QuizDAO implements IQuizDAO {
 
     }
 
-
     private Statement createStatement(Connection connection) {
         try {
             return connection.createStatement();
@@ -284,16 +288,6 @@ public class QuizDAO implements IQuizDAO {
             return null;
         }
 
-    }
-
-    private static ResultSet executeQuery(Statement s, String sql) {
-        try {
-            return s.executeQuery(sql);
-        } catch (SQLException e) {
-            logger.warning(
-                    "Query ws not executed! " + e.getMessage() + " Error Code: " + e.getErrorCode());
-        }
-        return null;
     }
 
 }

@@ -1,6 +1,5 @@
 package org.ws.server;
 
-import java.sql.Connection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 

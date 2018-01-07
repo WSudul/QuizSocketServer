@@ -1,10 +1,7 @@
 package org.ws.communication;
 
 
-import org.ws.communication.job.Question;
-
 import java.io.Serializable;
-import java.util.List;
 
 
 public class QuizLoginMessage extends SocketMessage implements Serializable {

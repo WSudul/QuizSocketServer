@@ -6,7 +6,8 @@ public class DaoConfiguration {
 
     private String usedSchema;
     private List<String> createStatements;
-    public DaoConfiguration(){
+
+    public DaoConfiguration() {
 
     }
 

@@ -39,7 +39,7 @@ public class Worker implements Runnable {
         this.connectedUsers = connectedUsers;
         this.connection = connection;
         quizDAO = new QuizDAO(connection);
-        currentQuizId=null;
+        currentQuizId = null;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class Worker implements Runnable {
                 if (!connectedUsers.set(clientName)) {
                     output.writeObject(new EndCommunicationMessage(workerName, "Client already logged in"));
                     performClose();
-                }else
+                } else
                     output.writeObject(new OkResponseMessage(clientName));
             }
 
@@ -101,7 +101,7 @@ public class Worker implements Runnable {
                             payload.setQuestions(new ArrayList<>());
                             payload.setQuizId(request.getQuizId());
                             output.writeObject(payload);
-                            currentQuizId=request.getQuizId();
+                            currentQuizId = request.getQuizId();
                         } else
                             sendRejectionMessage("No quiz found");
 
@@ -111,13 +111,13 @@ public class Worker implements Runnable {
 
                         QuizAnswerMessage quizAnswerMessage = (QuizAnswerMessage) receivedMessage;
 
-                        if(!currentQuizId.equals(quizAnswerMessage.getQuizId())){
+                        if (!currentQuizId.equals(quizAnswerMessage.getQuizId())) {
                             sendRejectionMessage("Bad quiz id given!");
-                        }else{
+                        } else {
                             List<Long> unpersisted = new ArrayList<>();
                             for (Answer answer : quizAnswerMessage.getAnswers()) {
 
-                                boolean was_persisted=quizDAO.persistAnswer(clientName, quizAnswerMessage.getQuizId(),
+                                boolean was_persisted = quizDAO.persistAnswer(clientName, quizAnswerMessage.getQuizId(),
                                         answer.getQuestionId(), answer.getQuestionId());
 
                                 if (!was_persisted) {
@@ -137,12 +137,11 @@ public class Worker implements Runnable {
                         }
 
 
-
                     } else if (receivedMessage instanceof ResultsRequestMessage) {
 
                         QuizResultsMessage resultsMessage = new QuizResultsMessage(workerName);
                         Optional<List<Result>> results = quizDAO
-                                .getUserAnswers(clientName,((ResultsRequestMessage) receivedMessage).getQuizId());
+                                .getUserAnswers(clientName, ((ResultsRequestMessage) receivedMessage).getQuizId());
 
                         if (results.isPresent()) {
                             resultsMessage.setResults(results.get());

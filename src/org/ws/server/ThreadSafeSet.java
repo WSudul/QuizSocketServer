@@ -47,7 +47,7 @@ public class ThreadSafeSet<E> {
 
     }
 
-    public long size(){
+    public long size() {
         readLock.lock();
         try {
             System.out.println("Getting size by thread" + Thread.currentThread().getName());

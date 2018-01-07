@@ -7,10 +7,9 @@ import java.util.logging.Logger;
 
 public abstract class DaoBase {
 
+    private final static Logger logger = Logger.getLogger(DaoBase.class.getName());
     private String usedSchema;
     private Connection dbConnection;
-
-    private final static Logger logger = Logger.getLogger(DaoBase.class.getName());
 
     protected abstract boolean initialize();
 
@@ -55,9 +54,8 @@ public abstract class DaoBase {
 
     protected boolean selectSchema(String usedSchema, Statement st) {
         System.out.println("selectSchema");
-        return executeUpdate(st, "USE "+usedSchema+";") == 0;
+        return executeUpdate(st, "USE " + usedSchema + ";") == 0;
     }
-
 
 
 }

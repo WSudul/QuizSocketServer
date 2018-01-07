@@ -22,22 +22,22 @@ public class MainWindowtobedeleted {
    /* CardLayout card = (CardLayout) panel1.getLayout();
     card.show(panel1, "panelOne");*/
 
-    public MainWindowtobedeleted(){
-        panel1=new JPanel();
+    public MainWindowtobedeleted() {
+        panel1 = new JPanel();
         panel1.setLayout(cardLayout);
-        panelOne=new JPanel();
-        panelThree=new JPanel();
-        panelTwo=new JPanel();
+        panelOne = new JPanel();
+        panelThree = new JPanel();
+        panelTwo = new JPanel();
         panelOne.add(Label1);
         panelTwo.add(label2);
         panelThree.add(label3);
         panel1.add(panelOne, "1");
         panel1.add(panelTwo, "2");
         panel1.add(panelThree, "3");
-     //   panelOne.add (panel1);
+        //   panelOne.add (panel1);
         panelTwo.add(niuField);
         panelThree.add(loginButton);
-        niuField.setPreferredSize( new Dimension( 100, 50 ) );
+        niuField.setPreferredSize(new Dimension(100, 50));
         panel1.setVisible(true);
 
         niuField.addActionListener(new ActionListener() {
@@ -51,23 +51,23 @@ public class MainWindowtobedeleted {
                 niu = niuField.getText();
             }
 //  cardLayout.show(cardPanel, "1");
-    });
+        });
     }
 
 
-/*public static void main(String[] args) {
-        JFrame frame = new JFrame("launchQuiz application");
-        CardLayout card = (CardLayout)panel1.getLayout();
-        card.show(panel1, "panelOne");
-        //launchQuiz start=new launchQuiz();
-        //frame.setContentPane(start.panel1);
-        frame.getContentPane().setPreferredSize(new Dimension(1300, 700));
-        frame.pack();
-        centreWindow(frame);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-    }
-*/
+    /*public static void main(String[] args) {
+            JFrame frame = new JFrame("launchQuiz application");
+            CardLayout card = (CardLayout)panel1.getLayout();
+            card.show(panel1, "panelOne");
+            //launchQuiz start=new launchQuiz();
+            //frame.setContentPane(start.panel1);
+            frame.getContentPane().setPreferredSize(new Dimension(1300, 700));
+            frame.pack();
+            centreWindow(frame);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setVisible(true);
+        }
+    */
     public static void centreWindow(Window frame) {
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);

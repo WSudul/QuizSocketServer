@@ -1,7 +1,6 @@
 package org.ws.communication;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class EndCommunicationMessage extends SocketMessage implements Serializable {
 
@@ -10,16 +9,16 @@ public class EndCommunicationMessage extends SocketMessage implements Serializab
 
     public EndCommunicationMessage(String author) {
         super(author);
-        message=null;
+        message = null;
     }
 
-    public EndCommunicationMessage(String author,String message) {
+    public EndCommunicationMessage(String author, String message) {
         super(author);
-        this.message=message;
+        this.message = message;
     }
 
     @Deprecated
     public EndCommunicationMessage() {
-        message=null;
+        message = null;
     }
 }

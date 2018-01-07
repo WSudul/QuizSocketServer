@@ -15,7 +15,8 @@ public class RequestQuizMessage extends SocketMessage implements Serializable {
     }
 
     @Deprecated
-    public RequestQuizMessage(){    }
+    public RequestQuizMessage() {
+    }
 
 
     public Long getQuizId() {

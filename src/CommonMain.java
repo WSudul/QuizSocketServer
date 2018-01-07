@@ -13,19 +13,19 @@ import java.util.logging.Logger;
 public class CommonMain {
 
     private final static Logger logger = Logger.getLogger(Main.class.getName());
-    public static void main(String [ ] args){
+
+    public static void main(String[] args) {
         System.out.println("Hi");
 
-        WorkerServer workerServer=new WorkerServer(prepareServerConfiguration());
+        WorkerServer workerServer = new WorkerServer(prepareServerConfiguration());
         workerServer.run();
-
 
 
     }
 
 
-    private static WorkerServerConfiguration prepareServerConfiguration(){
-        WorkerServerConfiguration serverConfiguration=new WorkerServerConfiguration();
+    private static WorkerServerConfiguration prepareServerConfiguration() {
+        WorkerServerConfiguration serverConfiguration = new WorkerServerConfiguration();
 
         serverConfiguration.setName("WorkerServer-1");
         try {
@@ -46,7 +46,6 @@ public class CommonMain {
         return serverConfiguration;
 
     }
-
 
 
 }
