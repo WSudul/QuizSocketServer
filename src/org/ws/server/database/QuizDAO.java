@@ -20,9 +20,16 @@ public class QuizDAO implements IQuizDAO {
     public QuizDAO(Connection connection) {
         this.connection = connection;
         st = createStatement(this.connection);
+        selectSchema("quiztest123",st);
+
     }
 
-    private static ResultSet executeQuery(Statement s, String sql) {
+    protected boolean selectSchema(String usedSchema, Statement st) {
+        System.out.println("selectSchema");
+        return executeUpdate(st, "USE " + usedSchema + ";") == 0;
+    }
+
+    private ResultSet executeQuery(Statement s, String sql) {
         try {
             return s.executeQuery(sql);
         } catch (SQLException e) {
@@ -34,6 +41,7 @@ public class QuizDAO implements IQuizDAO {
 
     @Override
     public List<Long> getQuizList() {
+        System.out.println("getQuizList");
         String[] columns = new String[]{"id"};
         String[] from = {"quiz"};
         String condition = "active IS TRUE";
@@ -60,10 +68,11 @@ public class QuizDAO implements IQuizDAO {
 
     @Override
     public Optional<List<Question>> getQuiz(Long quizId) {
-        List<String> columns = Arrays.asList("quiz_id,id,text,answers.id,answers.text");
+        System.out.println("getQuiz");
+        List<String> columns = Arrays.asList("quiz_id,question.id,question.text,answers.id as answerId,answers.text as answerText");
         List<String> from =  Arrays.asList("question");
         String condition = "quiz_id=" + quizId;
-        String joinCondition = "id=answers.question_id";
+        String joinCondition = "question.id=answers.question_id";
 
         System.out.println(columns);
         System.out.println(from);
@@ -83,18 +92,18 @@ public class QuizDAO implements IQuizDAO {
         try {
             while (results.next()) {
 
-                Long questionId = results.getLong("id");
+                Long questionId = results.getLong("question.id");
                 if (!questionMap.containsKey(questionId)) {
                     Question question = new Question();
                     question.setId(questionId);
-                    question.setQuestion(results.getString("text"));
+                    question.setQuestion(results.getString("question.text"));
                     question.setPossibleAnswers(new TreeMap<>());
                     question.setQuestionType(QuestionType.OneOf);
                     questionMap.put(questionId, question);
                 }
                 Map<Long, String> possibleAnswers = questionMap.get(questionId).getPossibleAnswers();
-                possibleAnswers.put(results.getLong("answers.id"),
-                        results.getString("answers.text"));
+                possibleAnswers.put(results.getLong("answerId"),
+                        results.getString("answerText"));
 
                 if (possibleAnswers.size() > 1)
                     questionMap.get(questionId).setQuestionType(QuestionType.Multiple);
@@ -111,6 +120,7 @@ public class QuizDAO implements IQuizDAO {
 
     @Override
     public Optional<List<Result>> getCorrectAnswers(Long quizId) {
+        System.out.println("getCorrectAnswers");
         Optional<List<Question>> quiz = this.getQuiz(quizId);
 
         if (!quiz.isPresent())
@@ -170,7 +180,7 @@ public class QuizDAO implements IQuizDAO {
 
     @Override
     public boolean persistAnswer(String user, Long quizId, Long questionId, Long answerId) {
-
+        System.out.println("persistAnswer");
         String tableName = "results";
         List<String> answerColumns = Arrays.asList("quiz_id", "questions_id", "NIU", "answer_id");
         List<String> answerValues = Arrays.asList(quizId.toString(), questionId.toString(), user, answerId.toString());
@@ -190,7 +200,7 @@ public class QuizDAO implements IQuizDAO {
 
     @Override
     public Optional<Map<Long, Long>> getUserScores(String userId) {
-
+        System.out.println("getUserScores");
         Map<Long, Long> userScores = new HashMap<>();
         List<Long> quizList = this.getQuizList();
 
@@ -221,7 +231,7 @@ public class QuizDAO implements IQuizDAO {
 
     @Override
     public Optional<List<Result>> getUserAnswers(String user, Long quizId) {
-
+        System.out.println("getUserAnswers");
         Optional<List<Result>> quizResults = getCorrectAnswers(quizId);
         if (!quizResults.isPresent())
             return null;

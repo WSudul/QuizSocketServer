@@ -72,14 +72,11 @@ public class Worker implements Runnable {
 
             while (!client.isClosed()) {
                 System.out.println("Waiting for message");
-                logger.info(Thread.currentThread().toString());
                 Object receivedMessage = input.readObject();
 
                 if (!isValidMessage(receivedMessage)) {
                     sendRejectionMessage("Unrecognized message received!");
                 } else {
-                    boolean messageHandled = true;
-                    SocketMessage message = null;
                     System.out.println("Parsing valid message");
 
                     String author = ((SocketMessage) receivedMessage).getAuthor();
@@ -91,10 +88,9 @@ public class Worker implements Runnable {
                         break;
                     }
 
-
                     if (receivedMessage instanceof RequestQuizListMessage) {
                         QuizListMessage quizList = new QuizListMessage(workerName);
-                        quizList.setQuizes(new ArrayList<>());
+                        quizList.setQuizes(quizDAO.getQuizList());
                         System.out.println("Sending QuizListMessage");
                         output.writeObject(quizList);
 
