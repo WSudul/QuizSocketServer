@@ -56,7 +56,7 @@ public class Worker implements Runnable {
             return;
         }
         try {
-
+            System.out.println("Waiting for first message");
             Object firstMessage = input.readObject();
             if (isLoginMessage(firstMessage)) {
                 clientName = ((SocketMessage) firstMessage).getAuthor();
@@ -64,10 +64,14 @@ public class Worker implements Runnable {
                     output.writeObject(new EndCommunicationMessage(workerName, "Client already logged in"));
                     performClose();
                 } else
+                {
                     output.writeObject(new OkResponseMessage(clientName));
+                    System.out.println("Client logged on:"+clientName);
+                }
             }
 
             while (!client.isClosed()) {
+                System.out.println("Waiting for message");
                 logger.info(Thread.currentThread().toString());
                 Object receivedMessage = input.readObject();
 
@@ -76,6 +80,7 @@ public class Worker implements Runnable {
                 } else {
                     boolean messageHandled = true;
                     SocketMessage message = null;
+                    System.out.println("Parsing valid message");
 
                     String author = ((SocketMessage) receivedMessage).getAuthor();
                     if (!author.equalsIgnoreCase(clientName)) {
@@ -90,6 +95,7 @@ public class Worker implements Runnable {
                     if (receivedMessage instanceof RequestQuizListMessage) {
                         QuizListMessage quizList = new QuizListMessage(workerName);
                         quizList.setQuizes(new ArrayList<>());
+                        System.out.println("Sending QuizListMessage");
                         output.writeObject(quizList);
 
                     } else if (receivedMessage instanceof RequestQuizMessage) {
@@ -100,8 +106,10 @@ public class Worker implements Runnable {
                             QuizMessage payload = new QuizMessage(workerName);
                             payload.setQuestions(new ArrayList<>());
                             payload.setQuizId(request.getQuizId());
+                            System.out.println("Sending QuizMessage");
                             output.writeObject(payload);
                             currentQuizId = request.getQuizId();
+
                         } else
                             sendRejectionMessage("No quiz found");
 

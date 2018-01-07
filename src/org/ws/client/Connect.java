@@ -17,7 +17,8 @@ public class Connect {
     int port = 8081;
     private Socket socket = null;
 
-    Connect() {
+    public Connect() {
+        //#TODO move all heavy lifting OUTSIDE CONSTRUCTOR
         try {
             InetAddress address = InetAddress.getLocalHost();
             System.out.println("address is " + address);
@@ -25,7 +26,7 @@ public class Connect {
             System.out.println("ip is " + hostIP);
             String hostName = address.getHostName();
             System.out.println("hostname is " + hostName);
-            socket = new Socket("192.168.43.100", port);//InetAddress.getByName(hostName, port));
+            socket = new Socket("192.168.20.103", port);//InetAddress.getByName(hostName, port));
             System.out.println("socket opened");
             try {
                 System.out.println("try entered");
@@ -38,7 +39,10 @@ public class Connect {
                 return;
             }
             System.out.println("try left");
-            RequestsHandling req = new RequestsHandling(output);
+            RequestsHandling req = new RequestsHandling(output,input);
+            System.out.println(req.login("123test")?"Login ok":"Login failed");
+            System.out.println(req.requestQuizList().toString());
+            System.out.println(req.startQuiz(1l).toString());
             /////function choice here
             //output.writeObject(new RequestQuizesMessage(null, hostIP));
             //System.out.println("request " + this.getClass().getName() + " sent");
@@ -79,7 +83,7 @@ public class Connect {
             System.out.println(e.getMessage());
             System.out.println("I'm here");
             try {
-                output.writeObject(new RequestQuizListMessage(null, "client"));
+                output.writeObject(new RequestQuizListMessage( "client"));
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

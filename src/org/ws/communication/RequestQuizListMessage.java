@@ -8,23 +8,13 @@ public class RequestQuizListMessage extends SocketMessage implements Serializabl
 
     private static final long serialVersionUID = -6532683589417248936L;
 
-    private List<String> quizes;
-
-    public RequestQuizListMessage(List<String> quizes, String requesterName) {
+    public RequestQuizListMessage(String requesterName) {
         super(requesterName);
-        this.quizes = quizes;
     }
 
     @Deprecated
     public RequestQuizListMessage() {
     }
 
-    public List<String> getQuizes() {
-        return quizes;
-    }
-
-    public void setQuizes(List<String> quizes) {
-        this.quizes = quizes;
-    }
 
 }

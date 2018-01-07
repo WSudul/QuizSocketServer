@@ -1,4 +1,5 @@
 import org.ws.Main;
+import org.ws.client.Connect;
 import org.ws.server.WorkerServer;
 import org.ws.server.config.WorkerConfiguration;
 import org.ws.server.config.WorkerConfigurationBuilder;
@@ -10,42 +11,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static org.ws.Main.prepareConfig;
+
 public class CommonMain {
 
     private final static Logger logger = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) {
         System.out.println("Hi");
-
-        WorkerServer workerServer = new WorkerServer(prepareServerConfiguration());
-        workerServer.run();
-
-
-    }
+        WorkerServerConfiguration serverConfiguration = prepareConfig();
+        logger.info("Starting the WorkServer " + serverConfiguration.getName());
+        WorkerServer workerServer = new WorkerServer(serverConfiguration);
 
 
-    private static WorkerServerConfiguration prepareServerConfiguration() {
-        WorkerServerConfiguration serverConfiguration = new WorkerServerConfiguration();
 
-        serverConfiguration.setName("WorkerServer-1");
+
+        Thread thread=new Thread(workerServer);
+
+        thread.start();
+        System.out.println("Trying to start client");
+
+        logger.info("Starting client");
+        Connect client=new Connect();
+
+
         try {
-            serverConfiguration.setInetAddress(InetAddress.getLocalHost());
-        } catch (UnknownHostException e) {
-            logger.severe("Configuration setup failed. Could not resolve InetAddress "
-                    + e.getMessage());
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        serverConfiguration.setPort(8081);
 
-        List<WorkerConfiguration> workerConfigurations;
-        workerConfigurations = new ArrayList<WorkerConfiguration>();
-
-        workerConfigurations.add(new WorkerConfigurationBuilder().name("Worker-1").buildWorkerConfiguration());
-
-        serverConfiguration.setWorkerConfigurations(workerConfigurations);
-
-        return serverConfiguration;
 
     }
+
 
 
 }

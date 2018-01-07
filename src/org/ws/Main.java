@@ -15,8 +15,19 @@ public class Main {
 
     public static void main(String[] args) {
 
-        WorkerServerConfiguration serverConfiguration = new WorkerServerConfiguration();
+        WorkerServerConfiguration serverConfiguration = prepareConfig();
 
+        logger.info("Starting the WorkServer " + serverConfiguration.getName());
+
+        WorkerServer workerServer = new WorkerServer(serverConfiguration);
+
+        workerServer.run();
+
+    }
+
+    public static WorkerServerConfiguration prepareConfig(){
+
+        WorkerServerConfiguration serverConfiguration = new WorkerServerConfiguration();
         serverConfiguration.setName("WorkerServer-1");
         try {
             serverConfiguration.setInetAddress(InetAddress.getLocalHost());
@@ -39,13 +50,7 @@ public class Main {
         serverConfiguration.setDaoConfiguration(daoConfiguration);
         serverConfiguration.setDbConnectionConfiguration(dbConnectionConfiguration);
 
-
-        logger.info("Starting the WorkServer " + serverConfiguration.getName());
-
-        WorkerServer workerServer = new WorkerServer(serverConfiguration);
-
-        workerServer.run();
-
+        return serverConfiguration;
     }
 
     private static DBConnectionConfiguration prepareDBConnectionConfig() {

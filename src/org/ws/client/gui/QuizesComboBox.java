@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class QuizesComboBox {
@@ -25,9 +26,13 @@ public class QuizesComboBox {
             }
         });
 
-        QuizListMessage qu = new QuizListMessage();
-        List<String> quizes = qu.getQuizes();
-        SortedComboBoxModel model = new SortedComboBoxModel(quizes);
+        QuizListMessage qu = new QuizListMessage("");
+        List<Long> quizes = qu.getQuizes();
+        SortedComboBoxModel model =
+                new SortedComboBoxModel(
+                        quizes.stream()
+                                .map(id->id.toString())
+                                .collect(Collectors.toList()));
         comboBox = new JComboBox(model);
         comboBox.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
         /*frame.add(comboBox, BorderLayout.SOUTH);
