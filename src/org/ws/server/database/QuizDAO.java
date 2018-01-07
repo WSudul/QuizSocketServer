@@ -46,17 +46,17 @@ public class QuizDAO implements IQuizDAO {
         String[] from = {"quiz"};
         String condition = "active IS TRUE";
 
-
-        ResultSet results = executeQuery(st, new QueryBuilder()
+        String sql= new QueryBuilder()
                 .select(Arrays.asList(columns))
                 .from(Arrays.asList(from))
                 .where(condition)
-                .BuildQuery());
-
+                .BuildQuery();
+        ResultSet results = executeQuery(st,sql);
+        
         List<Long> quizIds = new ArrayList<>();
         try {
             while (results.next())
-                quizIds.add(results.getLong(0));
+                quizIds.add(results.getLong("id"));
         } catch (SQLException e) {
             logger.warning("Query failed:" + e.getMessage());
             return null;
