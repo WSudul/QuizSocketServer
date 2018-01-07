@@ -40,7 +40,7 @@ public class QuizDAO implements IQuizDAO {
 
 
         ResultSet results = executeQuery(st, new QueryBuilder()
-                .columns(Arrays.asList(columns))
+                .select(Arrays.asList(columns))
                 .from(Arrays.asList(from))
                 .where(condition)
                 .BuildQuery());
@@ -60,17 +60,22 @@ public class QuizDAO implements IQuizDAO {
 
     @Override
     public Optional<List<Question>> getQuiz(Long quizId) {
-        String[] columns = new String[]{"quiz_id,id,text,answers.id,answers.text"};
-        String[] from = {"question"};
+        List<String> columns = Arrays.asList("quiz_id,id,text,answers.id,answers.text");
+        List<String> from =  Arrays.asList("question");
         String condition = "quiz_id=" + quizId;
         String joinCondition = "id=answers.question_id";
 
-        ResultSet results = executeQuery(st, new QueryBuilder()
-                .select(Arrays.asList(columns))
-                .from(Arrays.asList(from))
+        System.out.println(columns);
+        System.out.println(from);
+
+        String sql=new QueryBuilder()
+                .select(columns)
+                .from(from)
                 .join(JoinType.LEFT, "answers", joinCondition)
                 .where(condition)
-                .BuildQuery());
+                .BuildQuery();
+        System.out.println(sql);
+        ResultSet results = executeQuery(st,sql );
 
 
         Map<Long, Question> questionMap = new HashMap<>();

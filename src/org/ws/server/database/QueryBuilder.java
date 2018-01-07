@@ -7,18 +7,18 @@ import java.util.List;
 public class QueryBuilder {
 
 
-    private final String select = "SELECT";
-    private final String from = "FROM";
-    private final String where = "WHERE";
-    private final String join = "JOIN";
-    private final String on = "ON";
-    private final String inner = "INNER";
-    private final String left = "LEFT";
-    private final String right = "RIGHT";
-    private final String like = "LIKE";
-    private final String in = "IN";
-    private final String not = "NOT";
-    private final String insert = "INSERT INTO";
+    private final String select = "SELECT ";
+    private final String from = " FROM ";
+    private final String where = " WHERE ";
+    private final String join = " JOIN ";
+    private final String on = " ON ";
+    private final String inner = " INNER ";
+    private final String left = " LEFT ";
+    private final String right = " RIGHT ";
+    private final String like = " LIKE ";
+    private final String in = " IN ";
+    private final String not = " NOT ";
+    private final String insert = " INSERT INTO ";
     private StringBuilder stringBuilder;
 
     private List<String> selectedColumns;
@@ -43,12 +43,14 @@ public class QueryBuilder {
 
     public QueryBuilder select(List<String> columns) {
         stringBuilder.append(select);
+        stringBuilder.append(ListToString(columns));
         return this;
     }
 
 
     public QueryBuilder columns(List<String> columns) {
-        stringBuilder.append(columns);
+        stringBuilder.append(ListToString(columns));
+
         return this;
     }
 
@@ -60,7 +62,7 @@ public class QueryBuilder {
     public QueryBuilder from(List<String> tables) {
         this.fromTables = tables;
         stringBuilder.append(from);
-        stringBuilder.append(tables);
+        stringBuilder.append(ListToString(tables));
         return this;
     }
 
@@ -90,6 +92,7 @@ public class QueryBuilder {
 
 
         stringBuilder.append(joinTypeString);
+        stringBuilder.append(join);
         stringBuilder.append(table);
         stringBuilder.append(on);
         stringBuilder.append(condition);
@@ -104,18 +107,23 @@ public class QueryBuilder {
     }
 
     public QueryBuilder values(List<String> columns, List<String> values) {
-        stringBuilder.append(ParenthesedList(columns));
-        stringBuilder.append(ParenthesedList(values));
+        stringBuilder.append(ListToParenthesesString(columns));
+        stringBuilder.append(ListToParenthesesString(values));
 
         return this;
     }
 
-    private String ParenthesedList(List<String> list) {
+    private String ListToString(List<String> list){
+        String result = new String();
+
+        return result.join(",", list);
+    }
+
+    private String ListToParenthesesString(List<String> list) {
 
         String result = new String();
-        result.join(",", list);
 
-        return "(" + result + ")";
+        return "(" + result.join(",", list) + ")";
     }
 
 }
