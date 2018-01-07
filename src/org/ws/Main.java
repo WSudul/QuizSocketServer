@@ -69,23 +69,53 @@ public class Main {
 
         List<String> sqlCreationList=new ArrayList<>();
 
-        sqlCreationList.add("CREATE TABLE `answers` (`question_id` int(11) NOT NULL,`id` int(11) NOT NULL,`text` varchar(512) NOT NULL);");
-        sqlCreationList.add("CREATE TABLE `correct_answers` (`question_id` int(11) NOT NULL,`answer_id` int(11) NOT NULL);");
-        sqlCreationList.add("CREATE TABLE `question` (`quiz_id` int(11) NOT NULL,`id` int(11) NOT NULL,`text` varchar(512) NOT NULL,`value` int(11) NOT NULL DEFAULT '1');");
-        sqlCreationList.add("CREATE TABLE `quiz` (`id` int(11) NOT NULL,`active` tinyint(1) NOT NULL DEFAULT '1');");
-        sqlCreationList.add("CREATE TABLE `results` (`id` int(11) NOT NULL,`quiz_id` int(11) NOT NULL,`NIU` varchar(16) NOT NULL,`score` int(11) NOT NULL,  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP);");
+        sqlCreationList.add(
+                "CREATE TABLE `answers` (\n" +
+                        "  `id` int(11) NOT NULL,\n" +
+                        "  `question_id` int(11) NOT NULL,\n" +
+                        "  `text` varchar(512) NOT NULL\n" +
+                        ");"
+        );
+        sqlCreationList.add(
+                "CREATE TABLE `correct_answers` (\n" +
+                        "  `question_id` int(11) NOT NULL,\n" +
+                        "  `answer_id` int(11) NOT NULL\n" +
+                        ") ;"
+        );
+        sqlCreationList.add(
+                "CREATE TABLE `question` (\n" +
+                        "  `quiz_id` int(11) NOT NULL,\n" +
+                        "  `id` int(11) NOT NULL,\n" +
+                        "  `text` varchar(512) NOT NULL,\n" +
+                        "  `value` int(11) NOT NULL DEFAULT '1'\n" +
+                        ");"
+        );
+        sqlCreationList.add(
+                "CREATE TABLE `quiz` (\n" +
+                        "  `id` int(11) NOT NULL,\n" +
+                        "  `active` tinyint(1) NOT NULL DEFAULT '1'\n" +
+                        ");"
+        );
+        sqlCreationList.add(
+                "CREATE TABLE `results` (\n" +
+                        "  `quiz_id` int(11) NOT NULL,\n" +
+                        "  `question_id` int(11) NOT NULL,\n" +
+                        "  `NIU` varchar(16) NOT NULL,\n" +
+                        "  `answer_id` int(11) NOT NULL,\n" +
+                        "  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP\n" +
+                        ");"
+        );
         sqlCreationList.add("ALTER TABLE `answers` ADD PRIMARY KEY (`question_id`,`id`);");
-        sqlCreationList.add("ALTER TABLE `correct_answers` ADD UNIQUE KEY `question_id_2` (`question_id`), ADD KEY `question_id` (`question_id`,`answer_id`);");
+        sqlCreationList.add("ALTER TABLE `answers` ADD KEY `id` (`id`,`question_id`);");
+        sqlCreationList.add("ALTER TABLE `correct_answers` ADD PRIMARY KEY (`question_id`,`answer_id`);"  );
         sqlCreationList.add("ALTER TABLE `question` ADD PRIMARY KEY (`quiz_id`,`id`);");
         sqlCreationList.add("ALTER TABLE `quiz` ADD PRIMARY KEY (`id`);");
-        sqlCreationList.add("ALTER TABLE `results` ADD KEY `quiz_id` (`quiz_id`);");
+        sqlCreationList.add("ALTER TABLE `results` ADD KEY `answer_id` (`given_answer_id`);");
         sqlCreationList.add("ALTER TABLE `answers` ADD CONSTRAINT `answers_ibfk_1` FOREIGN KEY (`question_id`) REFERENCES `question` (`quiz_id`) ON DELETE CASCADE ON UPDATE CASCADE;");
         sqlCreationList.add("ALTER TABLE `correct_answers` ADD CONSTRAINT `correct_answers_ibfk_1` FOREIGN KEY (`question_id`,`answer_id`) REFERENCES `answers` (`question_id`, `id`);");
-        sqlCreationList.add("ALTER TABLE `question` ADD CONSTRAINT `question_ibfk_1` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;");
-        sqlCreationList.add("ALTER TABLE `results` ADD CONSTRAINT `results_ibfk_1` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;");
-
-
-        daoConfiguration.setUsedSchema("quiz");
+        sqlCreationList.add("ALTER TABLE `question` ADD CONSTRAINT `question_ibfk_1` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;" );
+        sqlCreationList.add("ALTER TABLE `results` ADD CONSTRAINT `results_ibfk_1` FOREIGN KEY (`question_id`,`answer_id`) REFERENCES `answers` (`question_id`, `id`);");
+        daoConfiguration.setUsedSchema("quizTEST123");
         daoConfiguration.setCreateStatements(sqlCreationList);
 
         return daoConfiguration;

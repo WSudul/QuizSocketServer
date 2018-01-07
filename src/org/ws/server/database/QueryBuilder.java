@@ -18,13 +18,14 @@ public class QueryBuilder {
     private final String like="LIKE";
     private final String in = "IN";
     private final String not = "NOT";
-
+    private final String insert= "INSERT INTO";
     private StringBuilder stringBuilder;
 
     private List<String> selectedColumns;
     private List<String> fromTables;
 
     private String queryString;
+
 
     public QueryBuilder(){
         stringBuilder=new StringBuilder(64);
@@ -40,13 +41,20 @@ public class QueryBuilder {
     }
 
 
-    public QueryBuilder select(){
+    public QueryBuilder select(List<String> columns){
         stringBuilder.append(select);
         return this;
     }
 
+
+
     public QueryBuilder columns(List<String> columns){
         stringBuilder.append(columns);
+        return this;
+    }
+
+    public QueryBuilder table(String table){
+        stringBuilder.append(table);
         return this;
     }
 
@@ -89,6 +97,26 @@ public class QueryBuilder {
 
         return this;
 
+    }
+
+    public QueryBuilder insert() {
+        stringBuilder.append(insert);
+        return this;
+    }
+
+    public QueryBuilder values(List<String> columns,List<String> values){
+        stringBuilder.append(ParenthesedList(columns));
+        stringBuilder.append(ParenthesedList(values));
+
+        return this;
+    }
+
+    private String ParenthesedList(List<String> list){
+
+        String result=new String();
+        result.join(",",list);
+
+        return "("+result+")";
     }
 
 }

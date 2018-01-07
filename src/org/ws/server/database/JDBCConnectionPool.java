@@ -1,6 +1,4 @@
 package org.ws.server.database;
-//The three remaining methods are abstract 
-//and therefore must be implemented by the subclass
 
 import org.ws.server.ObjectPool;
 
@@ -17,7 +15,7 @@ public class JDBCConnectionPool extends ObjectPool<Connection> {
         try {
             Class.forName(driver).newInstance();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("JDBCConnectionPool exception caught:"+ e);
         }
         this.dsn = dsn;
         this.usr = usr;
@@ -27,9 +25,10 @@ public class JDBCConnectionPool extends ObjectPool<Connection> {
     @Override
     protected Connection create() {
         try {
+            System.out.println("Creating new Connection");
             return (DriverManager.getConnection(dsn, usr, pwd));
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("JDBCConnectionPool exception caught:"+ e);
             return (null);
         }
     }
@@ -39,7 +38,7 @@ public class JDBCConnectionPool extends ObjectPool<Connection> {
         try {
             ((Connection) o).close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("JDBCConnectionPool exception caught:"+ e);
         }
     }
 
@@ -48,7 +47,7 @@ public class JDBCConnectionPool extends ObjectPool<Connection> {
         try {
             return (!((Connection) o).isClosed());
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("JDBCConnectionPool exception caught:"+ e);
             return (false);
         }
     }

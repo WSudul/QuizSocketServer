@@ -18,9 +18,7 @@ public class Result implements Serializable{
         this.questionId = questionId;
     }
 
-    @Deprecated
     public Result(){
-
     }
 
     public boolean isSuccessful() {
@@ -37,5 +35,17 @@ public class Result implements Serializable{
 
     public Long getQuestionId() {
         return questionId;
+    }
+
+    public void setValidAnswers(List<Long> validAnswers) {
+        this.validAnswers = validAnswers;
+    }
+
+    public void setProvidedAnswer(List<Long> providedAnswer) {
+        this.providedAnswer = providedAnswer;
+    }
+
+    public void setQuestionId(Long questionId) {
+        this.questionId = questionId;
     }
 }

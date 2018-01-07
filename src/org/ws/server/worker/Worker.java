@@ -56,8 +56,6 @@ public class Worker implements Runnable {
             return;
         }
         try {
-            //#TODO receive request;
-
 
             Object firstMessage = input.readObject();
             if (isLoginMessage(firstMessage)) {
@@ -65,7 +63,8 @@ public class Worker implements Runnable {
                 if (!connectedUsers.set(clientName)) {
                     output.writeObject(new EndCommunicationMessage(workerName, "Client already logged in"));
                     performClose();
-                }
+                }else
+                    output.writeObject(new OkResponseMessage(clientName));
             }
 
             while (!client.isClosed()) {
@@ -75,7 +74,6 @@ public class Worker implements Runnable {
                 if (!isValidMessage(receivedMessage)) {
                     sendRejectionMessage("Unrecognized message received!");
                 } else {
-                    //#TODO handle messages and responses
                     boolean messageHandled = true;
                     SocketMessage message = null;
 

@@ -1,14 +1,15 @@
 package org.ws.communication.job;
 
+import java.util.List;
 import java.io.Serializable;
 
 public class Answer implements Serializable {
     private static final long serialVersionUID = 2631924532682336018L;
     private Long questionId;
-    private Long answerId;
+    private List<Long> answerId;
 
 
-    public Answer(Long questionId, Long answerId) {
+    public Answer(Long questionId, List<Long> answerId) {
         this.questionId = questionId;
         this.answerId = answerId;
     }
@@ -27,11 +28,11 @@ public class Answer implements Serializable {
         this.questionId = questionId;
     }
 
-    public Long getAnswerId() {
+    public List<Long> getAnswerId() {
         return answerId;
     }
 
-    public void setAnswerId(Long answerId) {
+    public void setAnswerId(List<Long> answerId) {
         this.answerId = answerId;
     }
 

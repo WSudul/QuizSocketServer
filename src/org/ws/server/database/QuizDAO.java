@@ -1,17 +1,16 @@
 package org.ws.server.database;
 
 import org.ws.communication.job.Question;
+import org.ws.communication.job.QuestionType;
 import org.ws.communication.job.Result;
-import org.ws.server.database.IQuizDAO;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class QuizDAO implements IQuizDAO {
     private final static Logger logger = Logger.getLogger(QuizDAO.class.getName());
@@ -19,66 +18,248 @@ public class QuizDAO implements IQuizDAO {
     private Statement st;
 
     public QuizDAO(Connection connection) {
-        this.connection=connection;
-        st=createStatement(this.connection);
+        this.connection = connection;
+        st = createStatement(this.connection);
     }
 
 
     @Override
-    public List<Long> getQuizes() {
-        String[] columns =new String[]{"id"};
-        String[] from={"quiz"};
-        String condition="active IS TRUE";
+    public List<Long> getQuizList() {
+        String[] columns = new String[]{"id"};
+        String[] from = {"quiz"};
+        String condition = "active IS TRUE";
 
-        executeUpdate(st,new QueryBuilder()
+
+        ResultSet results = executeQuery(st, new QueryBuilder()
                 .columns(Arrays.asList(columns))
                 .from(Arrays.asList(from))
                 .where(condition)
                 .BuildQuery());
-        //#TODO implement
-        return null;
+
+        List<Long> quizIds = new ArrayList<>();
+        try {
+            while (results.next())
+                quizIds.add(results.getLong(0));
+        } catch (SQLException e) {
+            logger.warning("Query failed:" + e.getMessage());
+            return null;
+        }
+
+        return quizIds;
+
     }
 
     @Override
     public Optional<List<Question>> getQuiz(Long quizId) {
-        String[] columns =new String[]{"id,text,answers.text"};
-        String[] from={"question,answers"};
-        String condition="WHERE quiz_id"+quizId;
-        String joinCondition="id=answers.question_id";
+        String[] columns = new String[]{"quiz_id,id,text,answers.id,answers.text"};
+        String[] from = {"question"};
+        String condition = "quiz_id=" + quizId;
+        String joinCondition = "id=answers.question_id";
 
-        executeUpdate(st,new QueryBuilder()
-                .columns(Arrays.asList(columns))
+        ResultSet results = executeQuery(st, new QueryBuilder()
+                .select(Arrays.asList(columns))
                 .from(Arrays.asList(from))
-                .join(JoinType.LEFT,"answers",joinCondition)
+                .join(JoinType.LEFT, "answers", joinCondition)
                 .where(condition)
                 .BuildQuery());
 
 
+        Map<Long, Question> questionMap = new HashMap<>();
 
-        //#TODO implement
-        return null;
+        try {
+            while (results.next()) {
+
+                Long questionId = results.getLong("id");
+                if (!questionMap.containsKey(questionId)) {
+                    Question question = new Question();
+                    question.setId(questionId);
+                    question.setQuestion(results.getString("text"));
+                    question.setPossibleAnswers(new TreeMap<>());
+                    question.setQuestionType(QuestionType.OneOf);
+                    questionMap.put(questionId, question);
+                }
+                Map<Long, String> possibleAnswers = questionMap.get(questionId).getPossibleAnswers();
+                possibleAnswers.put(results.getLong("answers.id"),
+                            results.getString("answers.text"));
+
+                if(possibleAnswers.size()>1)
+                    questionMap.get(questionId).setQuestionType(QuestionType.Multiple);
+            }
+
+        } catch (SQLException e) {
+            logger.warning("Query failed:" + e.getMessage());
+            return null;
+        }
+        List<Question> questions = questionMap.values().stream().collect(Collectors.toList());
+        return Optional.ofNullable(questions);
 
     }
 
 
     @Override
-    public Optional<Map<Long, Long>> getCorrectAnswers(Long quizId) {
-        return null;
+    public Optional<List<Result>> getCorrectAnswers(Long quizId) {
+        Optional<List<Question>> quiz = this.getQuiz(quizId);
+
+        if (!quiz.isPresent())
+            return null;
+
+        List<Long> questionListId = new ArrayList<>();
+
+        for (Question question : quiz.get())
+            questionListId.add(question.getId());
+
+
+        List<String> columns = Arrays.asList("question_id,id,correct_answers.answer_id");
+        List<String> from = Arrays.asList("answer");
+        String joinTable = "correct_answers";
+        String condition = "quiz_id IS IN(" + questionListId.stream()
+                .map(id -> id.toString())
+                .collect(Collectors.joining(",")) + ")";
+        String joinCondition = "question_id=correct_answers.question_id";
+
+        String sql = new QueryBuilder()
+                .select(columns)
+                .from(from)
+                .join(JoinType.LEFT, joinTable, joinCondition)
+                .where(condition)
+                .BuildQuery();
+
+        ResultSet results = executeQuery(st, sql);
+
+        Map<Long, Result> questionResult = new HashMap<>();
+
+        try {
+            while (results.next()) {
+
+                Long questionId = results.getLong("question_id");
+                if (!questionResult.containsKey(questionId)) {
+                    Result result = new Result();
+                    result.setQuestionId(questionId);
+                    result.setProvidedAnswer(new ArrayList<>());
+                    result.setValidAnswers(new ArrayList<>());
+
+                    questionResult.put(questionId, result);
+                }
+                Long validAnswer=results.getLong("correct_answers.answer_id");
+                if(!questionResult.get(questionId).getValidAnswers().contains(validAnswer))
+                    questionResult.get(questionId).getValidAnswers().add(validAnswer);
+
+            }
+
+        } catch (SQLException e) {
+            logger.warning("Query failed:" + e.getMessage());
+            return null;
+        }
+        List<Result> answers = questionResult.values().stream().collect(Collectors.toList());
+        return Optional.ofNullable(answers);
+
     }
 
     @Override
     public boolean persistAnswer(String user, Long quizId, Long questionId, Long answerId) {
-        return false;
+
+        String tableName = "results";
+        List<String> answerColumns = Arrays.asList("quiz_id", "questions_id", "NIU", "answer_id");
+        List<String> answerValues = Arrays.asList(quizId.toString(), questionId.toString(), user, answerId.toString());
+
+        String sql = new QueryBuilder()
+                .insert()
+                .table(tableName)
+                .values(answerColumns, answerValues)
+                .BuildQuery();
+
+        if (executeUpdate(st, sql) == 1)
+            return true;
+        else
+            return false;
+
     }
 
     @Override
     public Optional<Map<Long, Long>> getUserScores(String userId) {
-        return null;
+
+        Map<Long, Long> userScores=new HashMap<>();
+        List<Long> quizList = this.getQuizList();
+
+        if(quizList.isEmpty())
+            return null;
+
+        for(Long id:quizList){
+            Optional<List<Result>> answers = getUserAnswers(userId, id);
+            if(answers.isPresent()){
+                Long score=0l;
+                Long maxScore=0l;
+                for(Result result:answers.get())
+                {
+                    ++maxScore;
+                    if(result.isSuccessful());
+                        ++score;
+                }
+                Long finalScore=score==maxScore?maxScore: ((long) ((float)score/maxScore*100));
+
+                userScores.put(id,finalScore);
+
+            }
+        }
+
+        return Optional.ofNullable(userScores);
+
+
+
     }
 
     @Override
-    public Optional<List<Result>> getUserAnswers(String user,Long quizId) {
-        return null;
+    public Optional<List<Result>> getUserAnswers(String user, Long quizId) {
+
+        Optional<List<Result>> quizResults = getCorrectAnswers(quizId);
+        if(!quizResults.isPresent())
+            return null;
+
+        Set<Long> questionListId=new HashSet<>();
+        for(Result result:quizResults.get())
+            questionListId.add(result.getQuestionId());
+
+        List<String> columns = Arrays.asList("question_id,answer_id");
+        List<String> from = Arrays.asList("results");
+        String condition = "WHERE NIU="+user+" AND quiz_id IS IN(" + questionListId.stream()
+                .map(id -> id.toString())
+                .collect(Collectors.joining(",")) + ")";
+
+        String sql = new QueryBuilder()
+                .select(columns)
+                .from(from)
+                .where(condition)
+                .BuildQuery();
+
+        ResultSet results = executeQuery(st, sql);
+
+        Map<Long, List<Long>> questionAnswers = new HashMap<>();
+
+
+        try {
+            while (results.next()) {
+
+                Long questionId = results.getLong("question_id");
+                if (!questionAnswers.containsKey(questionId)) {
+                    List<Long> answers = new ArrayList<>();
+                    questionAnswers.put(questionId, answers);
+                }
+                Long userAnswer = results.getLong("answer_id");
+                if (!questionAnswers.get(questionId).contains(userAnswer))
+                    questionAnswers.get(questionId).add(userAnswer);
+
+            }
+
+            for(Result result:quizResults.get()) {
+                result.setProvidedAnswer(questionAnswers.get(result.getQuestionId()));
+            }
+        } catch (SQLException e) {
+            logger.warning("Query failed:" + e.getMessage());
+            return null;
+        }
+
+
+        return quizResults;
     }
 
 
@@ -94,7 +275,6 @@ public class QuizDAO implements IQuizDAO {
     }
 
 
-
     private Statement createStatement(Connection connection) {
         try {
             return connection.createStatement();
@@ -104,6 +284,16 @@ public class QuizDAO implements IQuizDAO {
             return null;
         }
 
+    }
+
+    private static ResultSet executeQuery(Statement s, String sql) {
+        try {
+            return s.executeQuery(sql);
+        } catch (SQLException e) {
+            logger.warning(
+                    "Query ws not executed! " + e.getMessage() + " Error Code: " + e.getErrorCode());
+        }
+        return null;
     }
 
 }
