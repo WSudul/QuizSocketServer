@@ -52,7 +52,7 @@ public class QuizDAO implements IQuizDAO {
                 .where(condition)
                 .BuildQuery();
         ResultSet results = executeQuery(st,sql);
-        
+
         List<Long> quizIds = new ArrayList<>();
         try {
             while (results.next())

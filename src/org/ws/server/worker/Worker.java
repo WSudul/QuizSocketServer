@@ -96,6 +96,10 @@ public class Worker implements Runnable {
 
                     } else if (receivedMessage instanceof RequestQuizMessage) {
                         RequestQuizMessage request = (RequestQuizMessage) receivedMessage;
+
+                        if(hasUserSolvedQuiz(request.getQuizId(),request.getAuthor()))
+                            sendRejectionMessage("User has already taken quiz");
+
                         Optional<List<Question>> quiz = quizDAO.getQuiz(request.getQuizId());
 
                         if (quiz.isPresent()) {
@@ -120,7 +124,6 @@ public class Worker implements Runnable {
                         } else {
                             List<Long> unpersisted = new ArrayList<>();
                             for (Answer answer : quizAnswerMessage.getAnswers()) {
-
                                 boolean was_persisted = quizDAO.persistAnswer(clientName, quizAnswerMessage.getQuizId(),
                                         answer.getQuestionId(), answer.getQuestionId());
 
@@ -173,6 +176,14 @@ public class Worker implements Runnable {
             performClose();
             return;
         }
+    }
+
+    private boolean hasUserSolvedQuiz(Long quizId, String author) {
+
+        Optional<List<Result>> results = quizDAO.getUserAnswers(author, quizId);
+
+        return results.isPresent() && !results.get().isEmpty();
+
     }
 
     private void performClose() {
