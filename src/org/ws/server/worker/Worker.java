@@ -33,12 +33,12 @@ public class Worker implements Runnable {
     private IQuizDAO quizDAO;
     private Long currentQuizId;
 
-    public Worker(Socket client, ThreadSafeSet<String> connectedUsers, Connection connection) {
+    public Worker(Socket client, ThreadSafeSet<String> connectedUsers, Connection connection,String usedSchema) {
         this.client = client;
         this.workerName = "server " + Thread.currentThread().getName();
         this.connectedUsers = connectedUsers;
         this.connection = connection;
-        quizDAO = new QuizDAO(connection);
+        quizDAO = new QuizDAO(connection,usedSchema);
         currentQuizId = null;
     }
 

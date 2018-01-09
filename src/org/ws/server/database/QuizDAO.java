@@ -17,10 +17,10 @@ public class QuizDAO implements IQuizDAO {
     private Connection connection;
     private Statement st;
 
-    public QuizDAO(Connection connection) {
+    public QuizDAO(Connection connection,String usedSchema) {
         this.connection = connection;
         st = createStatement(this.connection);
-        selectSchema("quiztest123",st);
+        selectSchema(usedSchema,st);
 
     }
 
