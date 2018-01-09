@@ -26,8 +26,10 @@ public class QuizesComboBox {
             }
         });
 
-        QuizListMessage qu = new QuizListMessage("");
+        QuizListMessage qu = new QuizListMessage("TEST");
         List<Long> quizes = qu.getQuizes();
+        System.out.println("Is quizes null:?"); if (quizes==null) {System.out.println(" yes");} else System.out.println(" no");;
+        System.out.println(quizes.toString());
         SortedComboBoxModel model =
                 new SortedComboBoxModel(
                         quizes.stream()
@@ -35,12 +37,7 @@ public class QuizesComboBox {
                                 .collect(Collectors.toList()));
         comboBox = new JComboBox(model);
         comboBox.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-        /*frame.add(comboBox, BorderLayout.SOUTH);
-        frame.add(textField, BorderLayout.WEST);
-        frame.add(new JLabel("Enter to add Item  "), BorderLayout.EAST);
-        frame.pack();
-        frame.setLocation(150, 150);
-        frame.setVisible(true);*/
+
     }
 
     public JComboBox getComboBox() {

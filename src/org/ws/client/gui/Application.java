@@ -1,15 +1,21 @@
 package org.ws.client.gui;
 
+import org.ws.client.RequestsHandling;
+
 import javax.swing.*;
 import java.awt.*;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class Application implements Runnable {
 
     public JFrame frame;
     private int var;
+    private RequestsHandling handler;
 
     public Application(int var) {
         this.var = var;
+       // handler=new RequestsHandling(ObjectOutputStream out, ObjectInputStream in)
     }
 
     public static void centreWindow(Window frame) {

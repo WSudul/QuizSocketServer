@@ -20,8 +20,6 @@ public class RequestsHandling {
     RequestsHandling(ObjectOutputStream out,ObjectInputStream in) {
         this.output = out;
         this.in=in;
-
-
     }
 
     public boolean login(String name){

@@ -114,7 +114,7 @@ public class Main {
         sqlCreationList.add("ALTER TABLE `correct_answers` ADD PRIMARY KEY (`question_id`,`answer_id`);");
         sqlCreationList.add("ALTER TABLE `question` ADD PRIMARY KEY (`quiz_id`,`id`);");
         sqlCreationList.add("ALTER TABLE `quiz` ADD PRIMARY KEY (`id`);");
-        sqlCreationList.add("ALTER TABLE `results` ADD KEY `answer_id` (`given_answer_id`);");
+        sqlCreationList.add("ALTER TABLE `results` ADD KEY `answer_id` (`answer_id`);");
         sqlCreationList
                 .add("ALTER TABLE `answers` ADD CONSTRAINT `answers_ibfk_1` FOREIGN KEY (`question_id`) REFERENCES " +
                         "`question` (`quiz_id`) ON DELETE CASCADE ON UPDATE CASCADE;");

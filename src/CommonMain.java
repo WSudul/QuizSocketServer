@@ -33,6 +33,7 @@ public class CommonMain {
 
         logger.info("Starting client");
         Connect client=new Connect();
+        client.work();
 
 
         try {

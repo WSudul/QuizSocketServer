@@ -18,7 +18,9 @@ public class Connect {
     private Socket socket = null;
 
     public Connect() {
-        //#TODO move all heavy lifting OUTSIDE CONSTRUCTOR
+    }
+
+    public void work() {
         try {
             InetAddress address = InetAddress.getLocalHost();
             System.out.println("address is " + address);
@@ -39,8 +41,8 @@ public class Connect {
                 return;
             }
             System.out.println("try left");
-            RequestsHandling req = new RequestsHandling(output,input);
-            System.out.println(req.login("123test")?"Login ok":"Login failed");
+            RequestsHandling req = new RequestsHandling(output, input);
+            System.out.println(req.login("123test") ? "Login ok" : "Login failed");
             System.out.println(req.requestQuizList().toString());
             System.out.println(req.startQuiz(1l).toString());
             /////function choice here
@@ -54,6 +56,7 @@ public class Connect {
             performClose();
         }
     }
+
 
     public static void main(String args[]) {
         new Connect();
