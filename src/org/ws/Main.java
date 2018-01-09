@@ -127,7 +127,7 @@ public class Main {
         sqlCreationList
                 .add("ALTER TABLE `results` ADD CONSTRAINT `results_ibfk_1` FOREIGN KEY (`question_id`,`answer_id`) " +
                         "REFERENCES `answers` (`question_id`, `id`);");
-        daoConfiguration.setUsedSchema("quizTEST123");
+        daoConfiguration.setUsedSchema("testMEMES");
         daoConfiguration.setCreateStatements(sqlCreationList);
 
         return daoConfiguration;
