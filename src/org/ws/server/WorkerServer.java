@@ -30,7 +30,7 @@ public class WorkerServer implements Runnable {
     private List<WorkerConfiguration> workerConfigurations = new ArrayList<>
             (Arrays.asList(new WorkerConfiguration("Worker", TimeUnit.SECONDS, 10, 3)));
     private String name = "Worker-Server";
-    private int workerPoolSize = 10;
+    private int workerPoolSize = 30;
     private InetAddress inetAddress;
     private Integer port = 8080;
     private DAO dao;
@@ -44,8 +44,6 @@ public class WorkerServer implements Runnable {
         this.workerServerConfiguration = configuration;
 
         logger.info("WorkerServer is being configured");
-
-
         DBConnectionConfiguration connConfig = configuration.getDbConnectionConfiguration();
 
         String url = connConfig.getDatabaseSpecificAddress() +
@@ -59,9 +57,7 @@ public class WorkerServer implements Runnable {
         dbSchemaName=workerServerConfiguration.getDaoConfiguration().getUsedSchema();
 
         this.configure(configuration);
-
         logger.info("WorkerServer is almost configured");
-
 
         logger.info("Created WorkerServer with name: " + this.name + " address:" + this.inetAddress.getHostAddress());
 
@@ -87,16 +83,12 @@ public class WorkerServer implements Runnable {
         if (configuration.getPort().isPresent())
             this.port = configuration.getPort().get();
 
-        workerPoolSize = workerConfigurations.size();
+        //workerPoolSize = workerConfigurations.size();
 
     }
 
     @Override
     public void run() {
-
-
-
-
         //call looping method
         logger.info("Server " + this.name + " thread is started: " + Thread.currentThread().getName());
 
@@ -106,8 +98,17 @@ public class WorkerServer implements Runnable {
         }
 
         Charter charter=new Charter(connectionPool.checkOut(),dbSchemaName);
-        charter.run();
+        Thread charterThread=new Thread(charter);
+        charterThread.start();
+
+        logger.info("Request Handler is starting");
         handleRequests();
+
+        try {
+            charterThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 

@@ -23,16 +23,25 @@ public class CommonMain {
         logger.info("Starting the WorkServer " + serverConfiguration.getName());
         WorkerServer workerServer = new WorkerServer(serverConfiguration);
 
-
-
-
         Thread thread=new Thread(workerServer);
-
         thread.start();
-        System.out.println("Trying to start client");
 
+
+        System.out.println("Trying to start client");
+        String address;
         logger.info("Starting client");
-        Connect client=new Connect();
+        try {
+            address=InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            System.out.println(e.getLocalizedMessage());
+            return;
+        }
+        try {
+            Thread.currentThread().sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Connect client=new Connect(address,8081);
         client.work();
 
 

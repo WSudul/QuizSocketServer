@@ -77,12 +77,19 @@ public class QuizDAO implements IQuizDAO {
         System.out.println(columns);
         System.out.println(from);
 
-        String sql=new QueryBuilder()
-                .select(columns)
-                .from(from)
-                .join(JoinType.LEFT, "answers", joinCondition)
-                .where(condition)
-                .BuildQuery();
+//        String sql=new QueryBuilder()
+//                .select(columns)
+//                .from(from)
+//                .join(JoinType.LEFT, "answers", joinCondition)
+//                .where(condition)
+//                .BuildQuery();
+
+        String sql="SELECT question.id,question.text,answers.id as AnswerId,answers.text as AnswerText " +
+                "from question " +
+                "left join answers on " +
+                "question.quiz_id=answers.quiz_id\n" +
+                "AND question.id=answers.question_id\n" +
+                "where question.quiz_id="+ quizId+";";
         System.out.println(sql);
         ResultSet results = executeQuery(st,sql );
 
