@@ -31,6 +31,7 @@ public class CharterFrame extends JFrame {
         this.data=questionAnswersCount;
         System.out.println(questionAnswersCount.toString());
         myChart.updateList(questionAnswersCount);
+        labelInfo.setText("QUIZ="+quizId.toString());
     }
 
     private void prepareUI(){
@@ -71,13 +72,14 @@ public class CharterFrame extends JFrame {
             }
         }
 
-        private void paintMe(Graphics g){
-            Graphics2D graphics2d = (Graphics2D)g;
-            graphics2d.setColor(Color.blue);
-
+        private void paintMe(Graphics graphics){
+            Graphics2D graph = (Graphics2D)graphics;
             int width = getWidth();
             int height = getHeight();
-
+            graph.drawRect(0,100,100,10);
+            graph.drawRect(100,0,10,80);
+            graph.drawRect(width,0,10,10);
+            graph.drawRect(0,height,10,10);
             int hDiv = Math.round((width/(float)(data.size())));
 
             for(Long key: data.keySet())
@@ -85,13 +87,16 @@ public class CharterFrame extends JFrame {
                 int i=0;
                 data.get(key);
                 for (Long count:data.get(key)) {
-                    graphics2d.drawRect(0, i * hDiv, hDiv, Math.toIntExact(count));
-                    graphics2d.fillRect(0, i * hDiv, hDiv, Math.toIntExact(count));
+                    graph.setColor(Color.black);
+                    System.out.println(i * hDiv+" "+ 10*Math.toIntExact(count));
+                    graph.drawRect(i * hDiv, height-10*Math.toIntExact(count), 10*Math.toIntExact(count),hDiv);
+                    graph.setColor(Color.gray);
+                    graph.fillRect(i * hDiv,height- 10*Math.toIntExact(count), 10*Math.toIntExact(count),hDiv);
                     ++i;
                 }
             }
 
-            graphics2d.drawRect(0, 0, width, height);
+            graph.drawRect(0, 0, width, height);
         }
 
     }

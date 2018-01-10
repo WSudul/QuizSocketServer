@@ -36,7 +36,7 @@ public class Main {
                     + e.getMessage());
         }
         serverConfiguration.setPort(8081);
-
+        serverConfiguration.setServerThreadPoolSize(60);
         List<WorkerConfiguration> workerConfigurations;
         workerConfigurations = new ArrayList<WorkerConfiguration>();
 

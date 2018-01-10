@@ -35,7 +35,7 @@ public class Charter implements Runnable {
 
                 for (Long id : quizIds) {
                     charterFrame.getData(id,resultBrowser.getAnswersCounts(id));
-                    sleep(2000);
+                    sleep(5000);
                 }
                 sleep(2000);
 

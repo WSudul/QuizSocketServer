@@ -4,8 +4,11 @@ import org.ws.client.gui.ClientApplication;
 import org.ws.server.WorkerServer;
 import org.ws.server.config.WorkerServerConfiguration;
 
+import java.awt.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.*;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static org.ws.Main.prepareConfig;
@@ -42,16 +45,26 @@ public class CommonMain {
         ClientApplication myRunnable1 = new ClientApplication(address,port,"TestName1");
         Thread t1 = new Thread(myRunnable1);
         t1.start();
-//        ClientApplication myRunnable2 = new ClientApplication(address,port,"TestName2");
-//        Thread t2 = new Thread(myRunnable2);
-//        t2.start();
+        ClientApplication myRunnable2 = new ClientApplication(address,port,"TestName2");
+        Thread t2 = new Thread(myRunnable2);
+        t2.start();
 
-        //Connect client=new Connect(address,port);
-        //client.work();
+        Map<String,Thread> threads=new HashMap<String,Thread>();
+        int sampleSize = 10;
+        for(int i=0;i<sampleSize;++i)
+        {
+//            String name="TESTUSER"+i;
+//            ClientApplication myRunnable = new ClientApplication(address,port,name);
+//            threads.put(name,new Thread(myRunnable));
+//            threads.get(name).start();
+        }
+
 
 
         try {
-            thread.join();
+            t1.join();
+            t2.join();
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

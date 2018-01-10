@@ -53,7 +53,6 @@ public abstract class DaoBase {
     }
 
     protected boolean selectSchema(String usedSchema, Statement st) {
-        System.out.println("selectSchema");
         return executeUpdate(st, "USE " + usedSchema + ";") == 0;
     }
 

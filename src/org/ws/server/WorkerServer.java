@@ -71,6 +71,9 @@ public class WorkerServer implements Runnable {
         if (configuration.getWorkerConfigurations().isPresent())
             workerConfigurations = configuration.getWorkerConfigurations().get();
 
+        if(configuration.getServerThreadPoolSize().isPresent())
+        workerPoolSize=configuration.getServerThreadPoolSize().get();
+
         if (configuration.getInetAddress().isPresent())
             this.inetAddress = configuration.getInetAddress().get();
         else {
@@ -94,18 +97,18 @@ public class WorkerServer implements Runnable {
             logger.severe("Could not  valid ensure database access");
         }
 
-//        Charter charter=new Charter(connectionPool.checkOut(),dbSchemaName);
-//        Thread charterThread=new Thread(charter);
-//        charterThread.start();
+        Charter charter=new Charter(connectionPool.checkOut(),dbSchemaName);
+        Thread charterThread=new Thread(charter);
+        charterThread.start();
 
         logger.info("Request Handler is starting");
         handleRequests();
 
-//        try {
-//            charterThread.join();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            charterThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 

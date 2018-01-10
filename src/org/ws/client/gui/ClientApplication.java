@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ClientApplication implements Runnable {
 
-    public JFrame frame;
+    private MainWindow window;
 
     private Integer port;
     private String address;
@@ -31,6 +31,7 @@ public class ClientApplication implements Runnable {
         this.port = port;
         this.address = address;
         this.clientName = clientName;
+
     }
 
     public static void centreWindow(Window frame) {
@@ -40,21 +41,14 @@ public class ClientApplication implements Runnable {
         frame.setLocation(x, y);
     }
 
-    public JFrame getFrame() {
-        return frame;
-    }
-
-    private void start() {
-      /*  frame = new JFrame("launchQuiz application");
-        launchQuiz start=new launchQuiz(frame);
-        frame.setContentPane(start.panel1);
-        frame.getContentPane().setPreferredSize(new Dimension(1300, 700));
-        frame.pack();
-        centreWindow(frame);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);*/
-        launchQuiz myquiz = new launchQuiz();
-    }
+//    public void run(){
+//        try {
+//            window=new MainWindow(address,port,clientName);
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public void run() {
             try {
@@ -94,6 +88,8 @@ public class ClientApplication implements Runnable {
                     Thread.currentThread().sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    handler.endCommunication();
+                    return;
                 }
 
                 for(Question question:questions)
@@ -110,6 +106,6 @@ public class ClientApplication implements Runnable {
 
             }
 
-       // start();
+       // startGUI();
     }
 }
