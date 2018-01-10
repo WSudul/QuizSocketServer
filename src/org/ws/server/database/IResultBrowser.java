@@ -7,7 +7,7 @@ public interface IResultBrowser {
 
     List<Long> getQuizIds();
     Map<Long,List<Long>>  getQuizQuestionIds(List<Long> quizIds);
-    Map<Long,List<Long>> getAnswersCounts(List<Long> questionIds);
+    Map<Long,List<Long>> getAnswersCounts(Long quizId);
 
 
 }

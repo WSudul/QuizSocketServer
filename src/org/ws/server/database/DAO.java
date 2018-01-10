@@ -17,7 +17,7 @@ public class DAO extends DaoBase {
 
 
     public DAO(DaoConfiguration configuration, Connection connection) {
-
+        System.out.println("DAO Ctor()");
         this.dbConnection = connection;
 
         if (processConfiguration(configuration))

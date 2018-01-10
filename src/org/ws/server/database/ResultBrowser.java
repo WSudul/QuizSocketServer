@@ -1,7 +1,6 @@
 package org.ws.server.database;
 
 import org.ws.communication.job.Question;
-import org.ws.communication.job.Result;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -17,27 +16,28 @@ public class ResultBrowser extends DaoBase implements IResultBrowser {
     private Statement st;
     private IQuizDAO quizDAO;
 
-    public ResultBrowser(Connection connection,String usedSchema) {
+    public ResultBrowser(Connection connection, String usedSchema) {
         setDbConnection(connection);
-        quizDAO=new QuizDAO(connection,usedSchema);
+        quizDAO = new QuizDAO(connection, usedSchema);
+        st = createStatement(connection);
     }
 
     @Override
     public List<Long> getQuizIds() {
-            return  quizDAO.getQuizList();
+        return quizDAO.getQuizList();
 
     }
+
     @Override
     public Map<Long, List<Long>> getQuizQuestionIds(List<Long> quizIds) {
 
-        Map<Long,List<Long>> quizQuestionsMap=new HashMap<>();
+        Map<Long, List<Long>> quizQuestionsMap = new HashMap<>();
 
-        for(Long id:quizIds)
-        {
+        for (Long id : quizIds) {
             Optional<List<Question>> result = quizDAO.getQuiz(id);
-            if(result.isPresent()){
-                List<Long> questionIds= result.get().stream().map(Question::getId).collect(Collectors.toList());
-                quizQuestionsMap.put(id,questionIds);
+            if (result.isPresent()) {
+                List<Long> questionIds = result.get().stream().map(Question::getId).collect(Collectors.toList());
+                quizQuestionsMap.put(id, questionIds);
             }
         }
 
@@ -45,68 +45,47 @@ public class ResultBrowser extends DaoBase implements IResultBrowser {
     }
 
     @Override
-    public Map<Long, List<Long>> getAnswersCounts(List<Long> questionIds) {
+    public Map<Long, List<Long>> getAnswersCounts(Long quizId) {
         System.out.println("getUserAnswers");
-        Optional<List<Result>> quizResults=null ; //#TODO fix
-        if (!quizResults.isPresent())
-            return null;
 
-        Set<Long> questionListId = new HashSet<>();
-        for (Result result : quizResults.get())
-            questionListId.add(result.getQuestionId());
+        String condition = "WHERE " +
+//                "results.question_id IS IN(" + questionIds.stream()
+//                .map(id -> id.toString())
+//                .collect(Collectors.joining(",")) + ")" +
+//                " AND " +
+                "results.quiz_id=" + quizId.toString();
 
-        List<String> columns = Arrays.asList(",answer_id");
-        List<String> from = Arrays.asList("results");
-        String condition = "WHERE question.id IS IN(" + questionIds.stream()
-                .map(id -> id.toString())
-                .collect(Collectors.joining(",")) + ")";
-
-        String sql = new QueryBuilder()
-                .select(columns)
-                .from(from)
-                .where(condition)
-                .BuildQuery();
+        String sql = "SELECT COUNT(*),quiz_id,question_id,answer_id " +
+                "FROM `results` " +
+                condition +
+                " Group by quiz_id,question_id,answer_id " +
+                " ORDER BY quiz_id,question_id,answer_id ASC;";
 
         ResultSet results = executeQuery(st, sql);
-
         Map<Long, List<Long>> questionAnswers = new HashMap<>();
-
 
         try {
             while (results.next()) {
+                Long count = results.getLong(1);
 
                 Long questionId = results.getLong("question_id");
                 if (!questionAnswers.containsKey(questionId)) {
                     List<Long> answers = new ArrayList<>();
                     questionAnswers.put(questionId, answers);
                 }
-                Long userAnswer = results.getLong("answer_id");
-                if (!questionAnswers.get(questionId).contains(userAnswer))
-                    questionAnswers.get(questionId).add(userAnswer);
-
-            }
-
-            for (Result result : quizResults.get()) {
-                result.setProvidedAnswer(questionAnswers.get(result.getQuestionId()));
+                questionAnswers.get(questionId).add(count);
             }
         } catch (SQLException e) {
             logger.warning("Query failed:" + e.getMessage());
             return null;
         }
-
-
-        return null;
-
-
-
-
-
+        return questionAnswers;
     }
 
     @Override
     protected boolean initialize() {
 
-        this.st =createStatement(this.getDbConnection());
+        this.st = createStatement(this.getDbConnection());
 
         return selectSchema(this.usedSchema, st);
     }

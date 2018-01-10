@@ -1,32 +1,35 @@
 package org.ws.client;
 
 import org.ws.communication.*;
+import org.ws.communication.job.Answer;
 import org.ws.communication.job.Question;
-import org.ws.communication.job.Result;
+
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Logger;
 
 public class RequestsHandling {
-    private  ObjectInputStream in;
+    private final static Logger logger = Logger.getLogger(RequestsHandling.class.getName());
+    private  ObjectInputStream input;
     protected ObjectOutputStream output = null;
     private boolean shouldRead = true;
     private String name;
+    private Long currentQuizId;
 
-    RequestsHandling(ObjectOutputStream out,ObjectInputStream in) {
+    RequestsHandling(ObjectOutputStream out,ObjectInputStream input) {
         this.output = out;
-        this.in=in;
+        this.input = input;
     }
 
     public boolean login(String name){
         this.name=name;
         try {
             output.writeObject(new QuizLoginMessage(name));
-            Object message=in.readObject();
+            Object message= input.readObject();
 
 
             if(message instanceof RejectionMessage)
@@ -49,7 +52,7 @@ public class RequestsHandling {
     public List<Long> requestQuizList(){
         try {
             output.writeObject(new RequestQuizListMessage(name));
-            Object message=in.readObject();
+            Object message= input.readObject();
 
 
             if(message instanceof RejectionMessage)
@@ -75,80 +78,71 @@ public class RequestsHandling {
 
         try {
             output.writeObject(new RequestQuizMessage(id,name));
-            Object message=in.readObject();
+            Object message= input.readObject();
 
 
             if(message instanceof RejectionMessage)
                 return null;
             else if(message instanceof QuizMessage)
             {
-                QuizMessage quizlistmsg = (QuizMessage) message;
-                return quizlistmsg.getQuestions();
+                QuizMessage quizListMessage = (QuizMessage) message;
+                this.currentQuizId=quizListMessage.getQuizId();
+                return quizListMessage.getQuestions();
             }
             else
                 return null;
 
         } catch (IOException e) {
-            e.printStackTrace();
+           logger.warning("Client:"+e.getMessage());
             return null;
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+           logger.warning("Client:"+e.getMessage());
             return null;
         }
 
     }
+    public boolean sendAnswer(Answer answer){
+        return sendAnswer(Arrays.asList(answer));
+    }
 
-    protected List<String> quizesChosen() {
-        System.out.println("quizes chosen");
-        List<String> listofquizes = null;
-        listofquizes.add("1");
-        listofquizes.add("2");
-        String NIU = "123";
-        RequestQuizListMessage qu = new RequestQuizListMessage( NIU);
-        listofquizes =null;// qu.getQuizes();
+    public boolean sendAnswer(List<Answer> answers){
+        QuizAnswerMessage answerMessage = new QuizAnswerMessage(name);
+        answerMessage.setAnswers(answers);
         try {
-            while (shouldRead) {
-                System.out.println("quizes try succ");
-                output.writeObject(new RequestQuizListMessage(NIU));
-            }
+            output.writeObject(answerMessage);
+
+            Object response=input.readObject();
+            if(response instanceof OkResponseMessage)
+                return true;
+            else if(response instanceof RejectionMessage){
+                RejectionMessage rejection = (RejectionMessage) response;
+               logger.warning(rejection.getReason());
+                return false;
+            }else
+                return false;
+
+
+
         } catch (IOException e) {
-            System.out.println("quizes try failed");
-            System.out.println(e.getMessage());
+           logger.warning("Client:"+e.getMessage());
+            return false;
+        } catch (ClassNotFoundException e) {
+           logger.warning("Client:"+e.getMessage());
         }
-        System.out.println("request " + this.getClass().getName() + " sent");
+        return true;
 
-        return listofquizes;
+
     }
 
-    protected List<Question> quizChosen() {
-        List<Question> questions = null;
-        String NIU = "123";
-        Question first = new Question();
-        first.setId(1l);
-        first.setQuestion("Why though");
-        Map<Long, String> answers = null;
-        answers.put(1l, "dont ask");
-        answers.put(2l, "yea");
-        first.setPossibleAnswers(answers);
-        QuizMessage qu = new QuizMessage(NIU);
-        questions = qu.getQuestions();
-        return questions;
+    public void endCommunication() {
+        EndCommunicationMessage message = new EndCommunicationMessage(name);
+        try {
+            output.writeObject(message);
+        } catch (IOException e) {
+            logger.warning("Client:" + e.getMessage());
+        }
+        return;
     }
 
-    protected List<Result> resultsChosen() {
-        String NIU = "123";
-        List<Result> results = null;
-        List<Long> valid = new ArrayList<Long>() {{
-            add(1l);
-        }};
-        List<Long> provided = new ArrayList<Long>() {{
-            add(2l);
-        }};
-        Result res = new Result(valid, provided, 1l);
-        results.add(res);
-        QuizResultsMessage qu = new QuizResultsMessage(NIU);
-        results = qu.getResults();
-        return results;
-    }
 }
 

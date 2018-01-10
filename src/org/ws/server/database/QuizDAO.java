@@ -69,9 +69,9 @@ public class QuizDAO implements IQuizDAO {
     @Override
     public Optional<List<Question>> getQuiz(Long quizId) {
         System.out.println("getQuiz");
-        List<String> columns = Arrays.asList("quiz_id,question.id,question.text,answers.id as answerId,answers.text as answerText");
+        List<String> columns = Arrays.asList("question.quiz_id,question.id,question.text,answers.id as answerId,answers.text as answerText");
         List<String> from =  Arrays.asList("question");
-        String condition = "quiz_id=" + quizId;
+        String condition = "question.quiz_id=" + quizId;
         String joinCondition = "question.id=answers.question_id";
 
         System.out.println(columns);
@@ -132,7 +132,7 @@ public class QuizDAO implements IQuizDAO {
             questionListId.add(question.getId());
 
 
-        List<String> columns = Arrays.asList("question_id,id,correct_answers.answer_id");
+        List<String> columns = Arrays.asList("answers.question_id,id,correct_answers.answer_id");
         List<String> from = Arrays.asList("answer");
         String joinTable = "correct_answers";
         String condition = "quiz_id IS IN(" + questionListId.stream()
@@ -154,7 +154,7 @@ public class QuizDAO implements IQuizDAO {
         try {
             while (results.next()) {
 
-                Long questionId = results.getLong("question_id");
+                Long questionId = results.getLong("answers.question_id");
                 if (!questionResult.containsKey(questionId)) {
                     Result result = new Result();
                     result.setQuestionId(questionId);

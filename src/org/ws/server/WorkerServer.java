@@ -1,5 +1,6 @@
 package org.ws.server;
 
+import org.ws.server.Charter.Charter;
 import org.ws.server.config.DBConnectionConfiguration;
 import org.ws.server.config.WorkerConfiguration;
 import org.ws.server.config.WorkerServerConfiguration;
@@ -94,7 +95,7 @@ public class WorkerServer implements Runnable {
     public void run() {
 
 
-      //  Charter charter=new Charter(connectionPool.checkOut(),dbSchemaName);
+
 
         //call looping method
         logger.info("Server " + this.name + " thread is started: " + Thread.currentThread().getName());
@@ -103,6 +104,9 @@ public class WorkerServer implements Runnable {
             logger.severe("Could not  valid ensure database access");
             //return;
         }
+
+        Charter charter=new Charter(connectionPool.checkOut(),dbSchemaName);
+        charter.run();
         handleRequests();
 
     }

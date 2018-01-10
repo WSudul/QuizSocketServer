@@ -17,6 +17,13 @@ public class Connect {
     int port = 8081;
     private Socket socket = null;
 
+    public static void main(String args[]) {
+        new Connect();
+        System.out.println("end");;
+    }
+
+
+
     public Connect() {
     }
 
@@ -28,7 +35,7 @@ public class Connect {
             System.out.println("ip is " + hostIP);
             String hostName = address.getHostName();
             System.out.println("hostname is " + hostName);
-            socket = new Socket("192.168.20.103", port);//InetAddress.getByName(hostName, port));
+            socket = new Socket(address.getHostAddress(), port);//InetAddress.getByName(hostName, port));
             System.out.println("socket opened");
             try {
                 System.out.println("try entered");
@@ -58,9 +65,7 @@ public class Connect {
     }
 
 
-    public static void main(String args[]) {
-        new Connect();
-    }
+
 
     public ObjectInputStream getInput() {
         return input;
