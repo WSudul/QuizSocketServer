@@ -89,26 +89,23 @@ public class WorkerServer implements Runnable {
 
     @Override
     public void run() {
-        //call looping method
         logger.info("Server " + this.name + " thread is started: " + Thread.currentThread().getName());
-
         if (!dao.initialize()) {
             logger.severe("Could not  valid ensure database access");
-            //return;
         }
 
-        Charter charter=new Charter(connectionPool.checkOut(),dbSchemaName);
-        Thread charterThread=new Thread(charter);
-        charterThread.start();
+//        Charter charter=new Charter(connectionPool.checkOut(),dbSchemaName);
+//        Thread charterThread=new Thread(charter);
+//        charterThread.start();
 
         logger.info("Request Handler is starting");
         handleRequests();
 
-        try {
-            charterThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            charterThread.join();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
     }
 

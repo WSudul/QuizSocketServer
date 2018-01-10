@@ -108,6 +108,7 @@ public class QueryBuilder {
 
     public QueryBuilder values(List<String> columns, List<String> values) {
         stringBuilder.append(ListToParenthesesString(columns));
+        stringBuilder.append(" VALUES ");
         stringBuilder.append(ListToParenthesesString(values));
 
         return this;

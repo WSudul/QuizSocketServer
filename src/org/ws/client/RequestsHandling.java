@@ -20,7 +20,7 @@ public class RequestsHandling {
     private String name;
     private Long currentQuizId;
 
-    RequestsHandling(ObjectOutputStream out,ObjectInputStream input) {
+    public RequestsHandling(ObjectOutputStream out,ObjectInputStream input) {
         this.output = out;
         this.input = input;
     }
@@ -79,8 +79,6 @@ public class RequestsHandling {
         try {
             output.writeObject(new RequestQuizMessage(id,name));
             Object message= input.readObject();
-
-
             if(message instanceof RejectionMessage)
             {
                 logger.warning("Client: Received Rejection message"+
@@ -95,7 +93,10 @@ public class RequestsHandling {
                 return quizListMessage.getQuestions();
             }
             else
+            {
+                logger.warning("Client: unsupported message received");
                 return null;
+            }
 
         } catch (IOException e) {
            logger.warning("Client:"+e.getMessage());
@@ -113,13 +114,15 @@ public class RequestsHandling {
     public boolean sendAnswer(List<Answer> answers){
         QuizAnswerMessage answerMessage = new QuizAnswerMessage(name);
         answerMessage.setAnswers(answers);
+        answerMessage.setQuizId(currentQuizId);
         try {
             output.writeObject(answerMessage);
 
             Object response=input.readObject();
-            if(response instanceof OkResponseMessage)
+            if(response instanceof OkResponseMessage) {
+                logger.info("Client: answer was saved");
                 return true;
-            else if(response instanceof RejectionMessage){
+            }else if(response instanceof RejectionMessage){
                 RejectionMessage rejection = (RejectionMessage) response;
                logger.warning(rejection.getReason());
                 return false;

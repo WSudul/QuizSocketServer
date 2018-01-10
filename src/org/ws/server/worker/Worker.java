@@ -77,7 +77,7 @@ public class Worker implements Runnable {
                 if (!isValidMessage(receivedMessage)) {
                     sendRejectionMessage("Unrecognized message received!");
                 } else {
-                    System.out.println("Parsing valid message");
+                    logger.info("Parsing valid message:" + receivedMessage.getClass());
 
                     String author = ((SocketMessage) receivedMessage).getAuthor();
                     if (!author.equalsIgnoreCase(clientName)) {
@@ -95,18 +95,21 @@ public class Worker implements Runnable {
                         output.writeObject(quizList);
 
                     } else if (receivedMessage instanceof RequestQuizMessage) {
+                        System.out.println("DEBUG START HANDLE");
                         RequestQuizMessage request = (RequestQuizMessage) receivedMessage;
 
                         if(hasUserSolvedQuiz(request.getQuizId(),request.getAuthor()))
+                        {
                             sendRejectionMessage("User has already taken quiz");
-
+                        }
+                        System.out.println("DEBUG BEFORE GET QUIZ");
                         Optional<List<Question>> quiz = quizDAO.getQuiz(request.getQuizId());
-
+                        System.out.println("DEBUG AFTER GET QUIZ");
                         if (quiz.isPresent()) {
                             QuizMessage payload = new QuizMessage(workerName);
                             payload.setQuestions(quiz.get());
                             payload.setQuizId(request.getQuizId());
-                            System.out.println("Sending QuizMessage");
+                            System.out.println("Sending QuizMessage to "+clientName);
                             output.writeObject(payload);
                             currentQuizId = request.getQuizId();
 
@@ -120,19 +123,23 @@ public class Worker implements Runnable {
                         QuizAnswerMessage quizAnswerMessage = (QuizAnswerMessage) receivedMessage;
 
                         if (!currentQuizId.equals(quizAnswerMessage.getQuizId())) {
-                            sendRejectionMessage("Bad quiz id given!");
+                            sendRejectionMessage("Bad quiz id given! Current session quiz id:" + currentQuizId
+                                    + " provided " + quizAnswerMessage.getQuizId());
                         } else {
                             List<Long> unpersisted = new ArrayList<>();
                             for (Answer answer : quizAnswerMessage.getAnswers()) {
-                                boolean was_persisted = quizDAO.persistAnswer(clientName, quizAnswerMessage.getQuizId(),
-                                        answer.getQuestionId(), answer.getQuestionId());
+                                for (Long answerId : answer.getAnswerId()) {
+                                    boolean was_persisted = quizDAO
+                                            .persistAnswer(clientName, quizAnswerMessage.getQuizId(),
+                                                    answer.getQuestionId(), answerId);
 
-                                if (!was_persisted) {
-                                    logger.warning("Could not persist answer user:" + clientName
-                                            + " question: " + answer.getQuestionId() +
-                                            " answer: " + answer.getAnswerId());
-                                    unpersisted.add(answer.getQuestionId());
+                                    if (!was_persisted) {
+                                        logger.warning("Could not persist answer user:" + clientName
+                                                + " question: " + answer.getQuestionId() +
+                                                " answer: " + answerId);
+                                        unpersisted.add(answer.getQuestionId());
 
+                                    }
                                 }
                             }
 
@@ -140,7 +147,10 @@ public class Worker implements Runnable {
                                 sendRejectionMessage("Could not persist answers" +
                                         ":" + unpersisted.toString());
                             else
+                            {
+                                logger.info("Persisted answers from "+ clientName);
                                 output.writeObject(new OkResponseMessage(clientName));
+                            }
                         }
 
 
@@ -182,9 +192,7 @@ public class Worker implements Runnable {
 
         Optional<List<Result>> results = quizDAO.getUserAnswers(author, quizId);
         boolean hasSolved=results.isPresent() && !results.get().isEmpty();
-        System.out.println(!results.get().isEmpty());
-        System.out.println("Results:"+results.get().toString());
-        System.out.println(author+" has  already solved:"+hasSolved);
+        System.out.println("hasSolved="+hasSolved);
         return hasSolved;
 
     }

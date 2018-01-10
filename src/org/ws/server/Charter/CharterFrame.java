@@ -59,15 +59,12 @@ public class CharterFrame extends JFrame {
         Map<Long,List<Long>> data;
 
         public void updateList(Map<Long,List<Long>> data){
-            System.out.println("updateList()");
-
             this.data = data;
             repaint();
         }
 
         @Override
         public void paintComponent(Graphics g) {
-            System.out.println("paint()");
             super.paintComponent(g);
             if(data != null){
                 paintMe(g);
@@ -83,7 +80,6 @@ public class CharterFrame extends JFrame {
 
             int hDiv = Math.round((width/(float)(data.size())));
 
-            //float vDiv = (float)height/(float)(Collections.max(data));
             for(Long key: data.keySet())
             {
                 int i=0;

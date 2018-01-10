@@ -18,7 +18,7 @@ public class RejectionMessage extends SocketMessage implements Serializable {
     }
 
     public String getReason(){
-        return reason + " //quizId= "+quizId;
+        return reason;
     }
 
     @Deprecated

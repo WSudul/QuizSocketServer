@@ -74,27 +74,23 @@ public class QuizDAO implements IQuizDAO {
         String condition = "question.quiz_id=" + quizId;
         String joinCondition = "question.id=answers.question_id";
 
-
-//        String sql=new QueryBuilder()
-//                .select(columns)
-//                .from(from)
-//                .join(JoinType.LEFT, "answers", joinCondition)
-//                .where(condition)
-//                .BuildQuery();
-
         String sql="SELECT question.id,question.text,answers.id as AnswerId,answers.text as AnswerText " +
                 "from question " +
                 "left join answers on " +
                 "question.quiz_id=answers.quiz_id\n" +
                 "AND question.id=answers.question_id\n" +
                 "where question.quiz_id="+ quizId+";";
-        System.out.println(sql);
+
         ResultSet results = executeQuery(st,sql );
 
 
         Map<Long, Question> questionMap = new HashMap<>();
 
         try {
+
+            if(!results.isBeforeFirst())
+                return null;
+
             while (results.next()) {
 
                 Long questionId = results.getLong("question.id");
@@ -118,9 +114,8 @@ public class QuizDAO implements IQuizDAO {
             logger.warning("Query failed:" + e.getMessage());
             return Optional.empty();
         }
-        logger.info("questionMap:"+questionMap.size());
+
         List<Question> questions = questionMap.values().stream().collect(Collectors.toList());
-        logger.info("questions:"+questions.size());
         return Optional.ofNullable(questions);
 
     }
@@ -185,8 +180,8 @@ public class QuizDAO implements IQuizDAO {
     public boolean persistAnswer(String user, Long quizId, Long questionId, Long answerId) {
         System.out.println("persistAnswer");
         String tableName = "results";
-        List<String> answerColumns = Arrays.asList("quiz_id", "questions_id", "NIU", "answer_id");
-        List<String> answerValues = Arrays.asList(quizId.toString(), questionId.toString(), user, answerId.toString());
+        List<String> answerColumns = Arrays.asList("quiz_id", "question_id", "NIU", "answer_id");
+        List<String> answerValues = Arrays.asList("\'"+quizId.toString()+"\'","\'"+ questionId.toString()+"\'", "\'"+user+"\'", "\'"+answerId.toString()+"\'");
 
         String sql = new QueryBuilder()
                 .insert()
@@ -252,16 +247,25 @@ public class QuizDAO implements IQuizDAO {
                 .from(from)
                 .where(condition)
                 .BuildQuery();
-        System.out.println("SQL: "+sql);
+
+        System.out.println("SQL="+sql);
         ResultSet results = executeQuery(st, sql);
         Map<Long, List<Long>> questionAnswers = new HashMap<>();
         try {
-        if(!results.isBeforeFirst())
-        {
-            return null;
-        }
+            if(results==null)
+                return Optional.empty();
+            else
+            {
+                System.out.println("Before isBeforeFirst()");
+                if(!results.isBeforeFirst())
+                {
+                    System.out.println("results were empty");
+                    return Optional.empty();
+                }
+            }
 
 
+            System.out.println("Before while");
             while (results.next()) {
 
                 Long questionId = results.getLong("question_id");

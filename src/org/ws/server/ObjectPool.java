@@ -9,7 +9,7 @@ public abstract class ObjectPool<T> {
     private Hashtable<T, Long> locked, unlocked;
 
     public ObjectPool() {
-        expirationTime = 30000; // 30 seconds
+        expirationTime = 30000;
         locked = new Hashtable<T, Long>();
         unlocked = new Hashtable<T, Long>();
     }
@@ -38,7 +38,6 @@ public abstract class ObjectPool<T> {
                         locked.put(t, now);
                         return (t);
                     } else {
-                        // object failed validation
                         unlocked.remove(t);
                         expire(t);
                         t = null;
@@ -46,10 +45,9 @@ public abstract class ObjectPool<T> {
                 }
             }
         }
-        // no objects available, create a new one
         t = create();
         locked.put(t, now);
-        return (t);
+        return t;
     }
 
     public synchronized void checkIn(T t) {

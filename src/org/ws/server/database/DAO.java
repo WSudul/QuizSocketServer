@@ -21,7 +21,6 @@ public class DAO extends DaoBase {
         this.dbConnection = connection;
 
         if (processConfiguration(configuration))
-            //#TODO
             logger.info("Loaded configation for DAO");
         else {
             logger.warning("DAO was unable to load config - using default settings");

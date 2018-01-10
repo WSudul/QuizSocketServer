@@ -21,7 +21,7 @@ public class launchQuiz extends Container {
         frame.setContentPane(panel1);
         frame.getContentPane().setPreferredSize(new Dimension(1300, 700));
         frame.pack();
-        Application.centreWindow(frame);
+        ClientApplication.centreWindow(frame);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         /*add (panel1);
