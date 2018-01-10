@@ -40,7 +40,7 @@ public class Connect {
 
 
         try {
-            socket = new Socket(address, port);//InetAddress.getByName(hostName, port));
+            socket = new Socket(address, port);
         } catch (IOException e) {
             System.out.println("Exception caught when connecting "+e.getMessage());
             performClose();

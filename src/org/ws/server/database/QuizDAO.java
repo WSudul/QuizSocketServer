@@ -74,8 +74,6 @@ public class QuizDAO implements IQuizDAO {
         String condition = "question.quiz_id=" + quizId;
         String joinCondition = "question.id=answers.question_id";
 
-        System.out.println(columns);
-        System.out.println(from);
 
 //        String sql=new QueryBuilder()
 //                .select(columns)
@@ -118,9 +116,11 @@ public class QuizDAO implements IQuizDAO {
 
         } catch (SQLException e) {
             logger.warning("Query failed:" + e.getMessage());
-            return null;
+            return Optional.empty();
         }
+        logger.info("questionMap:"+questionMap.size());
         List<Question> questions = questionMap.values().stream().collect(Collectors.toList());
+        logger.info("questions:"+questions.size());
         return Optional.ofNullable(questions);
 
     }
@@ -131,7 +131,7 @@ public class QuizDAO implements IQuizDAO {
         Optional<List<Question>> quiz = this.getQuiz(quizId);
 
         if (!quiz.isPresent())
-            return null;
+            return Optional.empty();
 
         List<Long> questionListId = new ArrayList<>();
 
@@ -139,18 +139,14 @@ public class QuizDAO implements IQuizDAO {
             questionListId.add(question.getId());
 
 
-        List<String> columns = Arrays.asList("answers.question_id,id,correct_answers.answer_id");
-        List<String> from = Arrays.asList("answer");
-        String joinTable = "correct_answers";
-        String condition = "quiz_id IS IN(" + questionListId.stream()
-                .map(id -> id.toString())
-                .collect(Collectors.joining(",")) + ")";
-        String joinCondition = "question_id=correct_answers.question_id";
+        List<String> columns = Arrays.asList("correct_answers.question_id,correct_answers.answer_id");
+        List<String> from = Arrays.asList("correct_answers");
+        String condition = "quiz_id="+quizId;
+
 
         String sql = new QueryBuilder()
                 .select(columns)
                 .from(from)
-                .join(JoinType.LEFT, joinTable, joinCondition)
                 .where(condition)
                 .BuildQuery();
 
@@ -161,7 +157,7 @@ public class QuizDAO implements IQuizDAO {
         try {
             while (results.next()) {
 
-                Long questionId = results.getLong("answers.question_id");
+                Long questionId = results.getLong("correct_answers.question_id");
                 if (!questionResult.containsKey(questionId)) {
                     Result result = new Result();
                     result.setQuestionId(questionId);
@@ -249,22 +245,23 @@ public class QuizDAO implements IQuizDAO {
 
         List<String> columns = Arrays.asList("question_id,answer_id");
         List<String> from = Arrays.asList("results");
-        String condition = "WHERE NIU=" + user + " AND quiz_id IS IN(" + questionListId.stream()
-                .map(id -> id.toString())
-                .collect(Collectors.joining(",")) + ")";
+        String condition = " NIU=" +'\'' +user+'\'' + " AND quiz_id= "+quizId.toString();
 
         String sql = new QueryBuilder()
                 .select(columns)
                 .from(from)
                 .where(condition)
                 .BuildQuery();
-
+        System.out.println("SQL: "+sql);
         ResultSet results = executeQuery(st, sql);
-
         Map<Long, List<Long>> questionAnswers = new HashMap<>();
-
-
         try {
+        if(!results.isBeforeFirst())
+        {
+            return null;
+        }
+
+
             while (results.next()) {
 
                 Long questionId = results.getLong("question_id");

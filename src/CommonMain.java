@@ -37,7 +37,7 @@ public class CommonMain {
             return;
         }
         try {
-            Thread.currentThread().sleep(5000);
+            Thread.currentThread().sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

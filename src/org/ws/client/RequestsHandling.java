@@ -75,18 +75,23 @@ public class RequestsHandling {
     }
 
     public List<Question> startQuiz(Long id){
-
+        logger.info("Trying to start quiz "+id);
         try {
             output.writeObject(new RequestQuizMessage(id,name));
             Object message= input.readObject();
 
 
             if(message instanceof RejectionMessage)
+            {
+                logger.warning("Client: Received Rejection message"+
+                        ((RejectionMessage) message).getReason());
                 return null;
+            }
             else if(message instanceof QuizMessage)
             {
                 QuizMessage quizListMessage = (QuizMessage) message;
                 this.currentQuizId=quizListMessage.getQuizId();
+                logger.info("Client: Received quiz with questions:"+quizListMessage.getQuestions());
                 return quizListMessage.getQuestions();
             }
             else

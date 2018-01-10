@@ -104,7 +104,7 @@ public class Worker implements Runnable {
 
                         if (quiz.isPresent()) {
                             QuizMessage payload = new QuizMessage(workerName);
-                            payload.setQuestions(new ArrayList<>());
+                            payload.setQuestions(quiz.get());
                             payload.setQuizId(request.getQuizId());
                             System.out.println("Sending QuizMessage");
                             output.writeObject(payload);
@@ -181,8 +181,11 @@ public class Worker implements Runnable {
     private boolean hasUserSolvedQuiz(Long quizId, String author) {
 
         Optional<List<Result>> results = quizDAO.getUserAnswers(author, quizId);
-
-        return results.isPresent() && !results.get().isEmpty();
+        boolean hasSolved=results.isPresent() && !results.get().isEmpty();
+        System.out.println(!results.get().isEmpty());
+        System.out.println("Results:"+results.get().toString());
+        System.out.println(author+" has  already solved:"+hasSolved);
+        return hasSolved;
 
     }
 

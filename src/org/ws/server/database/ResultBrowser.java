@@ -61,6 +61,7 @@ public class ResultBrowser extends DaoBase implements IResultBrowser {
                 " Group by quiz_id,question_id,answer_id " +
                 " ORDER BY quiz_id,question_id,answer_id ASC;";
 
+        System.out.println("ResultBrowser sql:="+sql);
         ResultSet results = executeQuery(st, sql);
         Map<Long, List<Long>> questionAnswers = new HashMap<>();
 
@@ -76,7 +77,7 @@ public class ResultBrowser extends DaoBase implements IResultBrowser {
                 questionAnswers.get(questionId).add(count);
             }
         } catch (SQLException e) {
-            logger.warning("Query failed:" + e.getMessage());
+            logger.warning("ResultBrowser: Query failed:" + e.getMessage());
             return null;
         }
         return questionAnswers;
